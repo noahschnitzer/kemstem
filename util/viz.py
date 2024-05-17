@@ -80,7 +80,7 @@ def plot_phase(phase,ax=None):
     ax.axis('off')
     return ax
 
-def plot_displaced_site(columns,displacements,scale,colors='angles',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0):
+def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0):
     x0 = columns[:,1] 
     y0 = columns[:,0] 
     dx0 = displacements[:,1]* scale

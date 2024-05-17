@@ -17,6 +17,10 @@ def normalize_max(data):
 
 # window_dimension must be odd
 def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove_unfit = True):
+
+    if len(peaks0.shape) == 1:
+        peaks0 = np.expand_dims(peaks0,axis=0)
+
     winrad = window_dimension // 2
     
     x0 = peaks0[:,1]

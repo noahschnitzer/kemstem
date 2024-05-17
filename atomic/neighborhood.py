@@ -9,7 +9,7 @@ def get_neighborhood(columns, centerpoints,k=20):
     return rel
 
 def cluster_neighbors(neighborhood, n_clusters=40):
-    kmeans = KMeans(n_clusters=n_clusters,copy_x=True).fit(neighborhood) # (n,2)
+    kmeans = KMeans(n_clusters=n_clusters,copy_x=True,random_state=1337).fit(neighborhood) # (n,2)
     return kmeans.cluster_centers_
 
 def get_vector_to_neighbors(columns,origins,guess_vector, threshold=5):
