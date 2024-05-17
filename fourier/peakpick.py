@@ -49,21 +49,21 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
     ax.axis('off')
     fig.canvas.mpl_connect('button_press_event',_onclick_event)
 
-    return (x,y)
+    return (y,x)
     #return np.stack((x,y))
 
 # TODO: lots. fit, better viz, better store, check impl.
 def refine_peaks_com(pattern, p0, crop_window,iters=10,viz=False):
-    p_ref = np.zeros_like(p0)
-    for it,pt in enumerate(np.array(p0).T):
-        x0,y0 = pt
+    p_ref = np.zeros_like(p0) #np.zeros((len(p0[0]),2)) # (n,2)
+    for it,pt in enumerate(p0):
+        y0,x0 = pt
         for refnum in range(iters):
             crop = util.general.normalize(pattern[int(y0) - crop_window: int(y0) + crop_window, int(x0) - crop_window: int(x0) + crop_window])
             yr,xr = center_of_mass(crop)
             x0 = xr - crop_window + x0
             y0 = yr - crop_window + y0
 
-        p_ref[:,it] = (x0,y0)
+        p_ref[it,:] = (y0,x0)
 
         if viz:
             fig,ax = plt.subplots(1,1)
@@ -71,3 +71,5 @@ def refine_peaks_com(pattern, p0, crop_window,iters=10,viz=False):
             ax.plot(xr,yr,'rx')
             ax.plot(crop_window,crop_window,'bo')
     return p_ref
+def refine_peaks_gf(pattern, p0, window_dimension=5,store_fits=True, remove_unfit = True):
+    return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit)

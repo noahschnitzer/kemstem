@@ -6,8 +6,8 @@ from . import fourierfilter
 def create_references(p,shape):
     xsize = shape[1]
     ysize = shape[0]
-    x = p[0]
-    y = p[1]
+    x = p[1]
+    y = p[0]
     qx=2*np.pi*(xsize/2.- x)/xsize
     qy=2*np.pi*(xsize/2.- y)/ysize
 
