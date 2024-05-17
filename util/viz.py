@@ -91,7 +91,7 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         y,x=y0[i],x0[i]
         dy,dx=dy0[i],dx0[i]
         L=(dx**2.+dy**2.)**(.5)
-        L=L**.5 
+        #L=L**.5 
         L2=L/shape
         xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
         triangle=Polygon(xy, closed=True)
