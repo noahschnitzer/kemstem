@@ -7,8 +7,8 @@ def gaussian_2d(xy, amp, xo, yo, sigma_x, sigma_y, theta, offset):
     g = offset + amp*np.exp(- (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo) + c*((y-yo)**2)))
     return g.flatten()
 
-def sin2D( xy, amp, qr, angle,phi):
-    (x,y)= xy
+def sin2D( yx, amp, qr, angle,phi):
+    (y,x)= yx
 
     qx = qr*np.cos(angle)
     qy = qr*np.sin(angle)

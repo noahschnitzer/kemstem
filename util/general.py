@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 from scipy.optimize import curve_fit
+from scipy import interpolate
 from . import func
 ### normalization
 #min=0,max=1, no type conversions
@@ -68,3 +69,11 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
         yf[errors] = y0[errors]
 
     return np.array((yf,xf)).T, errors, opts, data_fits
+
+
+def rasterize_from_points(points,values,output_shape,method='nearest',fill_value=np.nan):
+    xi = np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')).T
+    interp = interpolate.griddata(points,values.ravel(),xi,method=method,fill_value=fill_value)
+    return interp    
+
+

@@ -29,12 +29,14 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
     #ax.set_xlim(image.shape[0],0)
 
 
-def plot_fit_comparison(data_fit_stack,figsize=(6,3)):
+def plot_fit_comparison(data_fit_stack,figsize=(6,3),cmap='viridis'):
+    if len(data_fit_stack==3):
+        data_fit_stack = np.expand_dims(data_fit_stack,2)
     fig,ax = plt.subplots(1,2,constrained_layout=True,figsize=figsize)
-    ax[0].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,0],2,0),padding_width=10,fill=0))
+    ax[0].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,0],2,0),padding_width=10,fill=0),cmap=cmap)
     ax[0].set_title('Data')
     ax[0].axis('off')
-    ax[1].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,1],2,0),padding_width=10,fill=0))
+    ax[1].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,1],2,0),padding_width=10,fill=0),cmap=cmap)
     ax[1].set_title('Fit')
     ax[1].axis('off')
     return fig,ax
