@@ -17,19 +17,49 @@ def prepare_fourier_pattern(image,log=False):
 
 '''
 # TODO: delete_within -- arg where if clicked pt is within this of another pt, delete that pt instead of adding
-def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False):
+def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False,delete_within=None):
 
     x = []
     y = []
+    if figsize is None:
+        fig,ax = plt.subplots(1,1,constrained_layout=True)
+    else:
+        fig,ax = plt.subplots(1,1,constrained_layout=True,figsize=figsize)
+
+
+    def replot():
+        ax.matshow(np.real(pattern),vmin=vmin,vmax=vmax,cmap=cmap)
+        if zoom is not None:
+            ax.set_xlim(pattern.shape[0]/2 - zoom ,pattern.shape[0]/2 + zoom)
+            ax.set_ylim(pattern.shape[1]/2 + zoom ,pattern.shape[1]/2 - zoom)
+        ax.axis('off')
+
     def _onclick_event(event):
         new_x = event.xdata
         new_y = event.ydata
-        x.append(new_x)
-        y.append(new_y)
-        ax.plot(new_x,new_y,'r.')
+        added_point = False
+        if delete_within is not None and len(x) > 0:
+            _,idx,dist = util.point.get_nearest_points(np.array((y,x)).T,(new_y,new_x),k=1)
+            if dist < delete_within:
+                del x[idx]
+                del y[idx]
+                ax.clear()
+                #ax.matshow(np.real(pattern),vmin=vmin,vmax=vmax,cmap=cmap)
+                replot()
+                ax.plot(x,y,'r.')
+            else:
+                x.append(new_x)
+                y.append(new_y)
+                ax.plot(new_x,new_y,'r.')
+                added_point = True
+        else:
+            x.append(new_x)
+            y.append(new_y)
+            ax.plot(new_x,new_y,'r.')
+            added_point = True
         # TODO: test works properly for non square
         # TODO: test off by one for odd / even with flooring...
-        if select_conjugates:
+        if select_conjugates and added_point:
             size_x = pattern.shape[1]
             size_y = pattern.shape[0]
             x_conj = -(new_x-(size_x//2.)) + (size_x//2.)
@@ -37,18 +67,8 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
             x.append(x_conj)
             y.append(y_conj)
             ax.plot(x_conj,y_conj,'r.')
-
-    if figsize is None:
-        fig,ax = plt.subplots(1,1,constrained_layout=True)
-    else:
-        fig,ax = plt.subplots(1,1,constrained_layout=True,figsize=figsize)
-    ax.matshow(np.real(pattern),vmin=vmin,vmax=vmax,cmap=cmap)
-    if zoom is not None:
-        ax.set_xlim(pattern.shape[0]/2 - zoom ,pattern.shape[0]/2 + zoom)
-        ax.set_ylim(pattern.shape[1]/2 + zoom ,pattern.shape[1]/2 - zoom)
-    ax.axis('off')
     fig.canvas.mpl_connect('button_press_event',_onclick_event)
-
+    replot()
     return (y,x)
     #return np.stack((x,y))
 

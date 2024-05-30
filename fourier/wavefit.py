@@ -4,8 +4,11 @@ import scipy.optimize as opt
 from concurrent.futures import ProcessPoolExecutor
 
 
-# patch_size must be odd
 def create_patches(grating, patch_size, step_size):
+    '''
+        path_size must be odd
+    '''
+    assert patch_size % 2 != 0
     patch_radius = patch_size // 2
     patches = []
     Ypoints = np.arange(grating.shape[0])[patch_radius:-(patch_radius+1):step_size]
@@ -17,12 +20,13 @@ def create_patches(grating, patch_size, step_size):
     shape = (len(Ypoints),len(Xpoints))
     return patches,Ypoints,Xpoints,shape
 
-'''
-    args:
-        0 patch
-        1 guess
-'''
+
 def fit_patch(args):
+    '''
+        args:
+            0 patch
+            1 guess
+    '''
     patch = args[0]
     guess = args[1]
     yx = np.meshgrid(np.arange(patch.shape[0]),np.arange(patch.shape[1]))
@@ -50,6 +54,7 @@ def fit_grating(grating,patch_size,step_size,guess,chunksize=None):
 
     if chunksize == None:
         chunksize = npatches//20
+        print(f'Using chunk size: {chunksize}')
 
     executor = ProcessPoolExecutor()
     futures = executor.map(fit_patch,[(patch/grating.max(),guess) for patch in patches],chunksize=chunksize)

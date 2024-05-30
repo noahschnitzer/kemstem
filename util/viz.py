@@ -7,9 +7,6 @@ from matplotlib.collections import LineCollection,PatchCollection
 import cmocean
 from skimage.util import montage
 
-'''
-
-'''
 def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r'):
     x = np.array(points)[:,1]
     y = np.array(points)[:,0]
@@ -30,8 +27,10 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
 
 
 def plot_fit_comparison(data_fit_stack,figsize=(6,3),cmap='viridis'):
-    if len(data_fit_stack==3):
+    if len(data_fit_stack.shape)==3:
         data_fit_stack = np.expand_dims(data_fit_stack,2)
+    print(data_fit_stack.shape)
+    print()
     fig,ax = plt.subplots(1,2,constrained_layout=True,figsize=figsize)
     ax[0].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,0],2,0),padding_width=10,fill=0),cmap=cmap)
     ax[0].set_title('Data')
@@ -41,9 +40,6 @@ def plot_fit_comparison(data_fit_stack,figsize=(6,3),cmap='viridis'):
     ax[1].axis('off')
     return fig,ax
 
-'''
-
-'''
 def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None):
     if ax is None:
         fig,ax = plt.subplots(1,1,constrained_layout=True)
@@ -59,7 +55,7 @@ def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None):
 
 
 def plot_scalar_sites(ax,scalar, sites,s=5,cmap='inferno',**scatterargs):
-    ax.scatter(x = site_x,y=site_y,s=s,c=scalar,cmap=cmap,**scatterargs)
+    ax.scatter(x = sites[:,1],y=sites[:,0],s=s,c=scalar,cmap=cmap,**scatterargs)
     return ax
 
 def plot_scalar_bonds(ax,scalar,sites_1,sites_2,cmap='inferno',linewidth=1,vmin=None,vmax=None,**lcargs):

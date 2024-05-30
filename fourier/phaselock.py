@@ -11,9 +11,9 @@ def create_references(p,shape):
     qx=2*np.pi*(xsize/2.- x)/xsize
     qy=2*np.pi*(xsize/2.- y)/ysize
 
-    II,JJ = np.meshgrid(np.arange(ysize),np.arange(xsize))
-    cosRef = np.cos(qx*II+qy*JJ)
-    sinRef = np.sin(qx*II+qy*JJ)
+    YY,XX = np.meshgrid(np.arange(ysize),np.arange(xsize),indexing='ij')
+    cosRef = np.cos(qx*XX+qy*YY)
+    sinRef = np.sin(qx*XX+qy*YY)
 
     
     return cosRef, sinRef, qx, qy
