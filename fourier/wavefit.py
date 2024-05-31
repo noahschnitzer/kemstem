@@ -44,17 +44,19 @@ def fit_patch(args):
 
     return popt,perr,data_fits
 
-def fit_grating(grating,patch_size,step_size,guess,chunksize=None):
+def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True):
     assert grating.shape[0] == grating.shape[1]
     assert len(grating.shape)==2
 
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
     sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
     npatches = patches.shape[0]
-
+    if verbose:
+        print(f'# of patches: {npatches}')
     if chunksize == None:
         chunksize = npatches//20
-        print(f'Using chunk size: {chunksize}')
+        if verbose:
+            print(f'Using chunk size: {chunksize}')
 
     executor = ProcessPoolExecutor()
     futures = executor.map(fit_patch,[(patch/grating.max(),guess) for patch in patches],chunksize=chunksize)

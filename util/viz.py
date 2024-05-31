@@ -23,14 +23,11 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
             print(str(it)+':'+str(x[it])+','+str(y[it]))
         ax.text(x[it]+delta,y[it]+delta,str(it),color='w',fontsize=4)
         delta = delta+delta_step
-    #ax.set_xlim(image.shape[0],0)
 
 
 def plot_fit_comparison(data_fit_stack,figsize=(6,3),cmap='viridis'):
     if len(data_fit_stack.shape)==3:
         data_fit_stack = np.expand_dims(data_fit_stack,2)
-    print(data_fit_stack.shape)
-    print()
     fig,ax = plt.subplots(1,2,constrained_layout=True,figsize=figsize)
     ax[0].matshow(montage(np.rollaxis(data_fit_stack[:,:,:,0],2,0),padding_width=10,fill=0),cmap=cmap)
     ax[0].set_title('Data')
@@ -78,11 +75,12 @@ def plot_phase(phase,ax=None):
     ax.axis('off')
     return ax
 
-def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0):
-    x0 = columns[:,1] 
-    y0 = columns[:,0] 
-    dx0 = displacements[:,1]* scale
-    dy0 = displacements[:,0]* scale
+def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf):
+    mask_sites = (np.linalg.norm(displacements,axis=1) < disp_max) & (np.linalg.norm(displacements,axis=1) > disp_min)
+    x0 = columns[mask_sites,1] 
+    y0 = columns[mask_sites,0] 
+    dx0 = displacements[mask_sites,1]* scale
+    dy0 = displacements[mask_sites,0]* scale
     angles = np.arctan2(dy0,dx0)
     patches=[]
     for i in range(len(x0)):

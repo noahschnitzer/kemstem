@@ -60,15 +60,15 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
         except RuntimeError:
             errors[it] = True
             
-    
-    if remove_unfit:
-        print(f'Removing indices: {np.where(errors)[0]}')
-        xf = np.delete(xf,errors)
-        yf = np.delete(yf,errors)
-    else:
-        print(f'Set to NaN: {np.where(errors)[0]}')
-        xf[errors] = x0[errors]
-        yf[errors] = y0[errors]
+    if errors.sum() > 0:
+        if remove_unfit:
+            print(f'Errors with indices: {np.where(errors)[0]}, removed')
+            xf = np.delete(xf,errors)
+            yf = np.delete(yf,errors)
+        else:
+            print(f'Errors with indices: {np.where(errors)[0]}, set to NaN')
+            xf[errors] = x0[errors]
+            yf[errors] = y0[errors]
 
     return np.array((yf,xf)).T, errors, opts, data_fits
 
