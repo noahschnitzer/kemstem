@@ -75,7 +75,7 @@ def plot_phase(phase,ax=None):
     ax.axis('off')
     return ax
 
-def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf):
+def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf,scale_power=0.5):
     mask_sites = (np.linalg.norm(displacements,axis=1) < disp_max) & (np.linalg.norm(displacements,axis=1) > disp_min)
     x0 = columns[mask_sites,1] 
     y0 = columns[mask_sites,0] 
@@ -87,6 +87,7 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         y,x=y0[i],x0[i]
         dy,dx=dy0[i],dx0[i]
         L=(dx**2.+dy**2.)**(.5)
+        L = L ** scale_power
         #L=L**.5 
         L2=L/shape
         xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
