@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "kemstem"
+version = "0.0.1"
+authors = [
+  { name="Noah Schnitzer", email="noah.i.schnitzer@gmail.com" },
+]
+description = "An atomic resolution STEM image analysis package developed in the Kourkoutis Electron Microscopy group at Cornell University."
+readme = "README.md"
+keywords = ["Electron Microscopy","STEM"]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    'scikit-learn',
+    'scikit-image',
+    'matplotlib',
+    'cmocean',
+    'scipy',
+    'tqdm',
+    'numpy',
+]
+
+
+[project.urls]
+Homepage = "https://github.com/noahschnitzer/kemstem"
+Issues = "https://github.com/noahschnitzer/kemstem/issues"
