@@ -65,6 +65,8 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
             print(f'Errors with indices: {np.where(errors)[0]}, removed')
             xf = np.delete(xf,errors)
             yf = np.delete(yf,errors)
+            opts = np.delete(opts,errors,axis=0)
+            data_fits = np.delete(data_fits,errors,axis=2)
         else:
             print(f'Errors with indices: {np.where(errors)[0]}, set to NaN')
             xf[errors] = x0[errors]
