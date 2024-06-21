@@ -109,3 +109,11 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         fig,ax = plt.subplots(1,1,constrained_layout=True)
     cax=ax.add_collection(p)
     return cax
+
+
+def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),**kwargs):
+    posx = position_frac[0]*axis.get_xlim()[1]
+    posy = position_frac[1]*axis.get_ylim()[0]
+    coarsening_marker = Circle((posx,posy),radius=coarsening_radius,**kwargs)
+    axis.add_patch(coarsening_marker)
+
