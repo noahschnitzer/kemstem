@@ -52,8 +52,8 @@ def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None):
 
 
 def plot_scalar_sites(ax,scalar, sites,s=5,cmap='inferno',**scatterargs):
-    ax.scatter(x = sites[:,1],y=sites[:,0],s=s,c=scalar,cmap=cmap,**scatterargs)
-    return ax
+    mappable=ax.scatter(x = sites[:,1],y=sites[:,0],s=s,c=scalar,cmap=cmap,**scatterargs)
+    return mappable
 
 def plot_scalar_bonds(ax,scalar,sites_1,sites_2,cmap='inferno',linewidth=1,vmin=None,vmax=None,**lcargs):
     vnorm = Normalize(vmin=vmin,vmax=vmax,clip=False)
@@ -62,18 +62,18 @@ def plot_scalar_bonds(ax,scalar,sites_1,sites_2,cmap='inferno',linewidth=1,vmin=
                                    linewidths=(linewidth),
                                    linestyles='solid',cmap=cmap,**lcargs)
     ax.add_collection(line_segments)
-    return ax
+    return line_segments
 
 
 def plot_phase(phase,ax=None):
     if ax is None:
         fig,ax = plt.subplots(1,1,constrained_layout=True)
     ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]
-    ax.matshow(phase,cmap=cmocean.cm.phase,alpha=1,vmin=0,vmax=2*np.pi)
+    mappable = ax.matshow(phase,cmap=cmocean.cm.phase,alpha=1,vmin=0,vmax=2*np.pi)
     ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]#np.arange(0,2*np.pi,np.pi/4)
     ax.contour(np.sin(phase),ctours,colors='black',alpha=1, linewidths=1,linestyles='solid')
     ax.axis('off')
-    return ax
+    return ax, mappable
 
 def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf,scale_power=0.5):
     mask_sites = (np.linalg.norm(displacements,axis=1) < disp_max) & (np.linalg.norm(displacements,axis=1) > disp_min)
@@ -116,4 +116,5 @@ def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),**kwargs):
     posy = position_frac[1]*axis.get_ylim()[0]
     coarsening_marker = Circle((posx,posy),radius=coarsening_radius,**kwargs)
     axis.add_patch(coarsening_marker)
+    return coarsening_marker
 
