@@ -65,13 +65,13 @@ def plot_scalar_bonds(ax,scalar,sites_1,sites_2,cmap='inferno',linewidth=1,vmin=
     return line_segments
 
 
-def plot_phase(phase,ax=None):
+def plot_phase(phase,ax=None,linewidths=1,**kwargs):
     if ax is None:
         fig,ax = plt.subplots(1,1,constrained_layout=True)
     ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]
     mappable = ax.matshow(phase,cmap=cmocean.cm.phase,alpha=1,vmin=0,vmax=2*np.pi)
     ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]#np.arange(0,2*np.pi,np.pi/4)
-    ax.contour(np.sin(phase),ctours,colors='black',alpha=1, linewidths=1,linestyles='solid')
+    ax.contour(np.sin(phase),ctours,colors='black',alpha=1, linewidths=linewidths,linestyles='solid',**kwargs)
     ax.axis('off')
     return ax, mappable
 

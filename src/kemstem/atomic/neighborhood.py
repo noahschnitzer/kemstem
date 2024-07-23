@@ -5,7 +5,13 @@ from sklearn.cluster import KMeans
 
 def get_neighborhood(columns, centerpoints,k=20):
     surr_cols = util.point.get_nearest_points(columns,centerpoints,k=k)[0]
-    rel = (np.swapaxes(surr_cols,0,1) - surr_cols[:,0,:]).reshape(-1,2)
+    # rel = (np.swapaxes(surr_cols,0,1) - surr_cols[:,0,:]).reshape(-1,2)
+    # should be swapped to:
+    # rel = (np.swapaxes(surr_cols,0,1) - centerpoints).reshape(-1,2)
+    # but check...
+    
+    rel = (np.swapaxes(surr_cols,0,1) - centerpoints).reshape(-1,2)
+    
     return rel
 
 def cluster_neighbors(neighborhood, n_clusters=40):
