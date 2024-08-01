@@ -4,12 +4,29 @@ from scipy.ndimage import center_of_mass
 from .. import util
 
 
-'''
+def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
+    """
+    Calculate 0-frequency centered FFT of a 2D image.
 
-'''
-def prepare_fourier_pattern(image,log=False):
+    Returned FFT is complex unless log transformed for visualization.
+
+    Parameters
+    ----------
+    image : ndarray
+        2D array for transformation
+    log : boolean
+        Whether to take absolute value and log transform the result for visualization
+    log_offset : float
+        Value added to FFT magnitude prior to log transform to enhance contrast.
+
+    Returns
+    -------
+    ndarray
+        The Fourier pattern, with the same shape as the input image
+
+    """
     if log:
-        return np.log(1e2+np.abs(np.fft.fftshift(np.fft.fft2(image))))
+        return np.log(log_offset+np.abs(np.fft.fftshift(np.fft.fft2(image))))
     else:
         return np.fft.fftshift(np.fft.fft2(image))
 

@@ -6,6 +6,23 @@ from . import func
 ### normalization
 #min=0,max=1, no type conversions
 def normalize(data):
+    """
+    Normalize an array between 0 and 1 (inclusive).
+
+    Subtract array minimum and divide by its maximum. No type conversions made.
+
+    Parameters
+    ----------
+    data : ndarray
+        Array to normalize. 
+
+    Returns
+    -------
+    ndarray
+        The normalized array.
+
+    """
+
     data = data - np.min(data)
     data = data / np.max(data)
     return data
@@ -20,7 +37,10 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
     '''
         window_dimension must be odd
     '''
-    assert window_dimension % 2 != 0
+
+    if window_dimension % 2 == 0:
+        raise ValueError('window_dimension must be odd.')
+
     if len(peaks0.shape) == 1:
         peaks0 = np.expand_dims(peaks0,axis=0)
 
