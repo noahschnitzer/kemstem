@@ -82,13 +82,13 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
     dx0 = displacements[mask_sites,1]* scale
     dy0 = displacements[mask_sites,0]* scale
     angles = np.arctan2(dy0,dx0)
+    mags = np.linalg.norm(displacements[mask_sites,:],axis=1)
     patches=[]
     for i in range(len(x0)):
         y,x=y0[i],x0[i]
         dy,dx=dy0[i],dx0[i]
         L=(dx**2.+dy**2.)**(.5)
         L = L ** scale_power
-        #L=L**.5 
         L2=L/shape
         xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
         triangle=Polygon(xy, closed=True)
@@ -98,9 +98,10 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
     if type(colors) is str and colors=='angle':
         p.set_array((angles+angleshift)%(2*np.pi))
     elif type(colors) is str and colors=='mag':
-        p.set_array(np.linalg.norm(displacements,axis=1))
-    elif type(colors) is np.ndarray and colors.shape == angles.shape:
-        p.set_array(np.array(colors))
+        p.set_array(mags)
+    elif type(colors) is np.ndarray and colors.shape[0] == columns.shape[0]:
+        ucolors = colors[mask_sites]
+        p.set_array(ucolors)
     else:
         print('No usable colors')
     p.set_edgecolor('k')
@@ -111,10 +112,10 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
     return cax
 
 
-def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),**kwargs):
+def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),facecolor='w',edgecolor='k',**kwargs):
     posx = position_frac[0]*axis.get_xlim()[1]
     posy = position_frac[1]*axis.get_ylim()[0]
-    coarsening_marker = Circle((posx,posy),radius=coarsening_radius,**kwargs)
+    coarsening_marker = Circle((posx,posy),radius=coarsening_radius,facecolor=facecolor,edgecolor=edgecolor**kwargs)
     axis.add_patch(coarsening_marker)
     return coarsening_marker
 
