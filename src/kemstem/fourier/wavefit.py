@@ -29,7 +29,8 @@ def fit_patch(args):
     '''
     patch = args[0]
     guess = args[1]
-    yx = np.meshgrid(np.arange(patch.shape[0]),np.arange(patch.shape[1]))
+    yx = args[2]
+    #yx = np.meshgrid(np.arange(patch.shape[0]),np.arange(patch.shape[1]))
 
     try: 
         popt,pcov = opt.curve_fit(util.func.sin2D, yx,patch.ravel(),
@@ -37,7 +38,7 @@ def fit_patch(args):
             xtol=1e-12,gtol=1e-12,maxfev=4000)
         perr = np.sqrt(np.diag(pcov))
     except RuntimeError:
-        popt = initial_guess
+        popt = guess
         perr = (np.nan,np.nan,np.nan,np.nan)
 
     data_fits = np.stack((patch,util.func.sin2D(yx,*popt).reshape(patch.shape)),axis=2)
@@ -49,7 +50,9 @@ def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True):
     assert len(grating.shape)==2
 
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
+    patches = patches / grating.max()
     sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
+    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
     if verbose:
         print(f'# of patches: {npatches}')
@@ -59,7 +62,8 @@ def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True):
             print(f'Using chunk size: {chunksize}')
 
     executor = ProcessPoolExecutor()
-    futures = executor.map(fit_patch,[(patch/grating.max(),guess) for patch in patches],chunksize=chunksize)
+    futures = executor.map(fit_patch,[(patch,guess,mesh) for patch in patches],chunksize=chunksize)
+    # doing patch / grating.max() causes a huge hang before the multiprocess execution, so definitely don't do...
     executor.shutdown()
 
     opts = np.zeros((npatches,4))
@@ -84,8 +88,10 @@ def peak_to_fit_guess(pt,imshape):
 
 def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None):
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
+    patches = patches / grating.max()
+    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
     if test_patch_idx is None:
         test_patch_idx = npatches//4
-    return fit_patch((patches[test_patch_idx,:,:],guess))
+    return fit_patch((patches[test_patch_idx,:,:],guess,mesh))
 
