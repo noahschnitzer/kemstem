@@ -38,7 +38,7 @@ def fit_patch(args):
             xtol=1e-12,gtol=1e-12,maxfev=4000)
         perr = np.sqrt(np.diag(pcov))
     except RuntimeError:
-        popt = guess
+        popt = (np.nan,np.nan,np.nan,np.nan)#guess
         perr = (np.nan,np.nan,np.nan,np.nan)
 
     data_fits = np.stack((patch,util.func.sin2D(yx,*popt).reshape(patch.shape)),axis=2)
