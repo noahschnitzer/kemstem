@@ -21,7 +21,7 @@ def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
 
     Returns
     -------
-    ndarray
+    pattern : ndarray
         The Fourier pattern, with the same shape as the input image
 
     """
@@ -30,11 +30,53 @@ def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
     else:
         return np.fft.fftshift(np.fft.fft2(image))
 
-'''
-
-'''
-# TODO: delete_within -- arg where if clicked pt is within this of another pt, delete that pt instead of adding
 def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False,delete_within=None):
+    """
+    Interactive peak selection tool.
+
+    This function displays the input pattern and allows the user to select peaks
+    by clicking on the image. It provides options for zooming, selecting conjugate
+    peaks, and deleting nearby peaks.
+
+    Parameters
+    ----------
+    pattern : ndarray
+        2D array representing the Fourier pattern.
+    cmap : str, optional
+        Colormap for displaying the pattern (default is 'gray').
+    vmin : float, optional
+        Minimum value for color scaling (default is None).
+    vmax : float, optional
+        Maximum value for color scaling (default is None).
+    zoom : float, optional
+        Zoom factor for the display (default is None). 
+        A box in the center of the pattern with width and height 2*zoom will be shown.
+    figsize : tuple, optional
+        Figure size in inches (width, height) (default is None).
+    select_conjugates : bool, optional
+        If True, automatically select the conjugate peak for each clicked point (default is False).
+    delete_within : float, optional
+        Distance threshold for deleting nearby peaks instead of adding new ones (default is None).
+        When set, clicking within this many pixels of a previously selected point will delete the 
+        original point.
+
+    Returns
+    -------
+    peaks_selected : ndarray, shape
+        A tuple containing two lists (y, x) of the selected peak coordinates. 
+
+    Notes
+    -----
+    Left-click to add peaks. If delete_within is set, clicking near an existing peak
+    will delete it instead of adding a new one.
+
+    The result is returned as a tuple of mutable lists to allow peaks to be conveniently 
+    added and removed in the midst of analysis, but this data structure does not conform 
+    to the kemstem conventions for points. To use the selected peaks for further analysis
+    the result should be transformed as:
+        p0 = np.array(peaks_selected).T
+    to arrive at an array with shape (n,2).
+    """
 
     x = []
     y = []
@@ -87,11 +129,34 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
     fig.canvas.mpl_connect('button_press_event',_onclick_event)
     replot()
     return (y,x)
-    #return np.stack((x,y))
 
-# TODO: lots. fit, better viz, better store, check impl.
-def refine_peaks_com(pattern, p0, crop_window,iters=10,viz=False):
-    p_ref = np.zeros_like(p0) #np.zeros((len(p0[0]),2)) # (n,2)
+def refine_peaks_com(pattern, p0, crop_window,iters=10):
+    """
+    Refine peak positions using center of mass calculations.
+
+    This function iteratively refines the positions of n initially detected peaks
+    using the center of mass method within a specified window around each peak.
+
+    Parameters
+    ----------
+    pattern : ndarray
+        Real valued 2D array representing the Fourier pattern.
+    p0 : array-like, shape (n,2)
+        Initial peak positions as (y, x) coordinates.
+    crop_window : int
+        Radius of the window around each peak for refinement.
+    iters : int, optional
+        Number of refinement iterations (default is 10).
+    viz : bool, optional
+        If True, visualize the refinement process for each peak (default is False).
+
+    Returns
+    -------
+    p_ref : ndarray, shape (n,2)
+        Array of refined peak positions.
+    """
+
+    p_ref = np.zeros_like(p0)
     for it,pt in enumerate(p0):
         y0,x0 = pt
         for refnum in range(iters):
@@ -101,12 +166,7 @@ def refine_peaks_com(pattern, p0, crop_window,iters=10,viz=False):
             y0 = yr - crop_window + y0
 
         p_ref[it,:] = (y0,x0)
-
-        if viz:
-            fig,ax = plt.subplots(1,1)
-            ax.matshow(crop,cmap='gray')
-            ax.plot(xr,yr,'rx')
-            ax.plot(crop_window,crop_window,'bo')
     return p_ref
+
 def refine_peaks_gf(pattern, p0, window_dimension=5,store_fits=True, remove_unfit = True):
     return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit)
