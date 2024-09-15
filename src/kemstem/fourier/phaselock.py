@@ -2,8 +2,29 @@ import numpy as np
 from .. import util
 from . import fourierfilter
 
-# TODO - check non square or enforce square
 def create_references(p,shape):
+    """
+    Create reference cosine and sine reference waves for phase lock-in.
+
+    Parameters
+    ----------
+    p : tuple
+        Peak position (y, x) in the Fourier transform.
+    shape : tuple
+        Shape of the image (height, width).
+
+    Returns
+    -------
+    cosRef : ndarray
+        Real valued sine reference wave
+    sinRef : ndarray
+        Real valued cosine reference wave
+    qx : float
+        Reference wavevector x component
+    qy : float
+        Reference wavevector y component
+    """
+
     xsize = shape[1]
     ysize = shape[0]
     x = p[1]
@@ -15,11 +36,28 @@ def create_references(p,shape):
     cosRef = np.cos(qx*XX+qy*YY)
     sinRef = np.sin(qx*XX+qy*YY)
 
-    
     return cosRef, sinRef, qx, qy
 
 
 def phaselock(filtered_im_c,p,sigma):
+    """
+    Perform phase lock in on a fourier filtered complex image.
+
+    Parameters
+    ----------
+    filtered_im_c : ndarray
+        Fourier filtered complex image.
+    p : tuple
+        Peak position (y, x) in the Fourier transform.
+    sigma : float
+        Standard deviation for the lock-in Gaussian low-pass filter.
+
+    Returns
+    -------
+    phase : ndarray
+        Real valued phase - range of 0 to 2π.
+    """
+
     cosRef, sinRef, qx, qy =create_references(p, filtered_im_c.shape)
     
     #Multiply reference images with Fourier filtered images

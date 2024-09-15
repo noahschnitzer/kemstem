@@ -4,8 +4,33 @@ import skimage
 #from scipy.ndimage import gaussian_filter, label,center_of_mass
 import matplotlib.pyplot as plt
 
-# based off stemtool
 def find_columns(image, distance = 10, threshold = 0.1, deduplicate = False):
+    """
+    Find column positions in an image with skimage.feature.peak_local_max.
+    
+    Parameters
+    ----------
+    image : ndarray
+        Real valued 2D image.
+    distance : int, optional
+        Minimum distance between peaks (default is 10), passed to peak_local_max.
+    threshold : float, optional
+        Intensity used for thresholding (default is 0.1).
+    deduplicate : bool, optional
+        If True, merge nearby peaks (currently not implemented) (default is False).
+    
+    Returns
+    -------
+    ndarray
+        Array of peak positions (N, 2).
+    
+    Notes
+    -----
+    This function normalizes the input image, applies thresholding,
+    and uses skimage.feature.peak_local_max for peak detection.
+    Implementation is based off stemtool.
+    """
+    
     image_norm = image - image.min()
     image_norm = image_norm / image_norm.max()
     thresh_mask = image_norm > threshold
