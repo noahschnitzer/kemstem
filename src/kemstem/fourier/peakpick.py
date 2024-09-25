@@ -30,7 +30,7 @@ def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
     else:
         return np.fft.fftshift(np.fft.fft2(image))
 
-def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False,delete_within=None):
+def select_peaks(pattern,preselected=None, cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False,delete_within=None):
     """
     Interactive peak selection tool.
 
@@ -42,6 +42,8 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
     ----------
     pattern : ndarray
         2D array representing the Fourier pattern.
+    preselected : ndarray, shape (n,2)
+        Optional initial set of (y,x) points which will be preselected.
     cmap : str, optional
         Colormap for displaying the pattern (default is 'gray').
     vmin : float, optional
@@ -77,9 +79,12 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
         p0 = np.array(peaks_selected).T
     to arrive at an array with shape (n,2).
     """
-
-    x = []
-    y = []
+    if preselected is None:
+        x = []
+        y = []
+    else:
+        y = list(preselected[:,0])
+        x = list(preselected[:,1])
     if figsize is None:
         fig,ax = plt.subplots(1,1,constrained_layout=True)
     else:
@@ -128,6 +133,8 @@ def select_peaks(pattern,cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,
             ax.plot(x_conj,y_conj,'r.')
     fig.canvas.mpl_connect('button_press_event',_onclick_event)
     replot()
+    ax.plot(x,y,'r.')
+
     return (y,x)
 
 def refine_peaks_com(pattern, p0, crop_window,iters=10):

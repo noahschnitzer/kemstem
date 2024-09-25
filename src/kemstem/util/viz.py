@@ -7,7 +7,7 @@ from matplotlib.collections import LineCollection,PatchCollection
 import cmocean
 from skimage.util import montage
 
-def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r'):
+def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r', fontsize=8):
     """
     Plot numbered points on an image.
 
@@ -31,6 +31,8 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
         Color scale range for image display.
     color : str, optional
         Color of the points (default is 'r').
+    fontsize: float,optional
+        Font size for point labels. Default is 8. 
 
     Returns
     -------
@@ -51,7 +53,7 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
     for it in range(len(x)):
         if verbose:
             print(str(it)+':'+str(x[it])+','+str(y[it]))
-        ax.text(x[it]+delta,y[it]+delta,str(it),color='w',fontsize=4)
+        ax.text(x[it]+delta,y[it]+delta,str(it),color='w',fontsize=fontsize)
         delta = delta+delta_step
     return ax
 
