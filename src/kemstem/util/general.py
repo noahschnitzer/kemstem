@@ -62,7 +62,7 @@ def normalize_max(data):
 
 
 
-def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove_unfit = True):
+def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove_unfit = True, verbose = True):
     """
     Fit 2D Gaussian functions to peaks in an image.
 
@@ -103,7 +103,6 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
     Notes
     -----
     This function uses scipy.optimize.curve_fit to perform the Gaussian fitting.
-    The 
     """
 
     if window_dimension % 2 == 0:
@@ -145,18 +144,20 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove
             data_fits[:,:,it,0] = ydata
             data_fits[:,:,it,1] = func.gaussian_2d((YY,XX),*popt).reshape(XX.shape)
             
-        except RuntimeError:
+        except (RuntimeError,ValueError):
             errors[it] = True
             
     if errors.sum() > 0:
         if remove_unfit:
-            print(f'Errors with indices: {np.where(errors)[0]}, removed')
+            if verbose:
+                print(f'Errors with {np.sum(errors)} fits, removed')
             xf = np.delete(xf,errors)
             yf = np.delete(yf,errors)
             opts = np.delete(opts,errors,axis=0)
             data_fits = np.delete(data_fits,errors,axis=2)
         else:
-            print(f'Errors with indices: {np.where(errors)[0]}, set to NaN')
+            if verbose:
+                print(f'Errors with {np.sum(errors)} fits, set to NaN')
             xf[errors] = x0[errors]
             yf[errors] = y0[errors]
 

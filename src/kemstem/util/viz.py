@@ -318,17 +318,32 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
         triangle=Polygon(xy, closed=True)
         patches.append(triangle)
-    p = PatchCollection(patches, cmap=cmap, alpha=1)
+
+    varray = []
     
     if type(colors) is str and colors=='angle':
-        p.set_array((angles+angleshift)%(2*np.pi))
+        #p.set_array((angles+angleshift)%(2*np.pi))
+        varray = (angles+angleshift)%(2*np.pi)
+        #print(((angles+angleshift)%(2*np.pi)).min())
+        #print(((angles+angleshift)%(2*np.pi)).max())
+        #print(((angles+angleshift)%(2*np.pi)).mean())
+        vnorm = Normalize(vmin=0,vmax=2*np.pi,clip=False)
+
     elif type(colors) is str and colors=='mag':
-        p.set_array(mags)
+        #p.set_array(mags)
+        varray = mags
+        vnorm = Normalize(vmin=None,vmax=None,clip=False)
+
     elif type(colors) is np.ndarray and colors.shape[0] == columns.shape[0]:
         ucolors = colors[mask_sites]
-        p.set_array(ucolors)
+        #p.set_array(ucolors)
+        varray = ucolors
+        vnorm = Normalize(vmin=None,vmax=None,clip=False)
+
     else:
         print('No usable colors')
+    p = PatchCollection(patches, cmap=cmap, alpha=1,norm=vnorm)
+    p.set_array(varray)
     p.set_edgecolor('k')
     p.set_linewidth(linewidth)
     if ax is None:

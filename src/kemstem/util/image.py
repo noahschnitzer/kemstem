@@ -16,7 +16,7 @@ def hann_filter(image):
     return (fim, fft)
 
 # www.roberthovden.com/tutorial/2015_fftartifacts.html
-def periodic_plus_smooth_decomposition(image):
+def periodic_plus_smooth_decomposition(im):
     [rows,cols] = np.shape(im) 
     #Compute boundary conditions 
     s = np.zeros( np.shape(im) ) 

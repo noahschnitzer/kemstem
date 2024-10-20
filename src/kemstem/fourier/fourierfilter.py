@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 from .. import util
 
 def create_gaussian_filter(shape,p,sigma):
@@ -129,7 +130,7 @@ def mask_peaks_circle(pattern_c,p,levels,radius):
     
     masked_pattern_c = pattern_c.copy()
     YY,XX = np.meshgrid(np.arange(pattern_c.shape[0]),np.arange(pattern_c.shape[1]),indexing='ij')
-    for it,pt in enumerate(p):
+    for it,pt in tqdm(enumerate(p)):
         circle_mask = ((XX-pt[1])**2 + (YY-pt[0])**2 )< radius**2
         masked_pattern_c[circle_mask] = damp_complex_amplitude(masked_pattern_c[circle_mask], levels[it])
     masked_image = np.abs(np.fft.ifft2(np.fft.ifftshift(masked_pattern_c)))

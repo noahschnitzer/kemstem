@@ -175,5 +175,5 @@ def refine_peaks_com(pattern, p0, crop_window,iters=10):
         p_ref[it,:] = (y0,x0)
     return p_ref
 
-def refine_peaks_gf(pattern, p0, window_dimension=5,store_fits=True, remove_unfit = True):
-    return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit)
+def refine_peaks_gf(pattern, p0, window_dimension=5,store_fits=True, remove_unfit = True,verbose=True):
+    return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit,verbose=verbose)

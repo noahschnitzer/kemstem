@@ -46,5 +46,5 @@ def find_columns(image, distance = 10, threshold = 0.1, deduplicate = False):
     return peaks
 
 
-def refine_columns(image, columns0, window_dimension=5,store_fits=True, remove_unfit = True):
-    return util.general.gaussian_fit_peaks(image, columns0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit)
+def refine_columns(image, columns0, window_dimension=5,store_fits=True, remove_unfit = True,verbose=True):
+    return util.general.gaussian_fit_peaks(image, columns0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit,verbose=verbose)
