@@ -20,6 +20,10 @@ def create_patches(grating, patch_size, step_size):
     shape = (len(Ypoints),len(Xpoints))
     return patches,Ypoints,Xpoints,shape
 
+def renormalize_each_patch(patches):
+    # return np.array([(util.normalize(patch)-0.5)*2 for patch in patches])
+    return np.array([util.general.normalize_mean(patch) for patch in patches])
+
 
 def fit_patch(args):
     '''
@@ -30,27 +34,30 @@ def fit_patch(args):
     patch = args[0]
     guess = args[1]
     yx = args[2]
-    #yx = np.meshgrid(np.arange(patch.shape[0]),np.arange(patch.shape[1]))
+
 
     try: 
         popt,pcov = opt.curve_fit(util.func.sin2D, yx,patch.ravel(),
-            p0 = guess, method='lm', ftol=1e-12,
-            xtol=1e-12,gtol=1e-12,maxfev=4000)
+            p0 = guess,  #bounds=bounds,
+            ftol=1e-12, method='lm',
+            xtol=1e-12,gtol=1e-12,maxfev=4000,)
         perr = np.sqrt(np.diag(pcov))
     except RuntimeError:
         popt = (np.nan,np.nan,np.nan,np.nan)#guess
         perr = (np.nan,np.nan,np.nan,np.nan)
-
     data_fits = np.stack((patch,util.func.sin2D(yx,*popt).reshape(patch.shape)),axis=2)
-
     return popt,perr,data_fits
 
-def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True):
+def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,renormalize_patches=False):
     assert grating.shape[0] == grating.shape[1]
     assert len(grating.shape)==2
 
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
-    patches = patches / grating.max()
+    #patches = patches / grating.max()
+
+    if renormalize_patches:
+        patches = renormalize_each_patch(patches)
+
     sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
     mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
@@ -86,9 +93,10 @@ def peak_to_fit_guess(pt,imshape):
     theta = np.arctan2((pt-c)[1],(pt-c)[0])
     return (1,r,theta,0)
 
-def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None):
+def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None,renormalize_patches=False):
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
-    patches = patches / grating.max()
+    if renormalize_patches:
+        patches = renormalize_each_patch(patches)
     mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
     if test_patch_idx is None:

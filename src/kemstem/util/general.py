@@ -60,6 +60,14 @@ def normalize_max(data):
 
     return data/data.max()
 
+def normalize_mean(data):
+    """
+
+
+    """
+
+    return (data - data.mean()) / np.std(data)
+
 
 
 def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove_unfit = True, verbose = True):
