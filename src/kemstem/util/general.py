@@ -62,8 +62,17 @@ def normalize_max(data):
 
 def normalize_mean(data):
     """
+    Normalize an array by centering the mean and scaling by the standard deviation
 
+    Parameters
+    ----------
+    data: ndarray
+        Array to normalize
 
+    Returns
+    -------
+    normalize: ndarray
+        The normalized array with mean of 0 and one standard deviation at +-1
     """
 
     return (data - data.mean()) / np.std(data)

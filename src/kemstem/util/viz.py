@@ -7,6 +7,8 @@ from matplotlib.collections import LineCollection,PatchCollection
 import cmocean
 from skimage.util import montage
 
+from . import general
+
 def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r', fontsize=8):
     """
     Plot numbered points on an image.
@@ -88,7 +90,7 @@ def plot_fit_comparison(data_fit_stack,figsize=(6,3),cmap='viridis'):
     ax[1].axis('off')
     return fig,ax
 
-def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None):
+def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None,fontsize=8):
     """
     Create a scatter plot of n pair correlation vectors with optional labeled cluster centers.
 
@@ -115,8 +117,9 @@ def neighborhood_scatter_plot(neighborhood,ax=None,clusters=None):
     if clusters is not None:
         ax.plot(clusters[:,1],clusters[:,0],'.')
         for it, ctr in enumerate(clusters):
-            ax.text(ctr[1]+2,ctr[0],str(it),color='red')
+            ax.text(ctr[1]+2,ctr[0],str(it),color='red',fontsize=fontsize)
     ax.invert_yaxis()
+    ax.axis('scaled')
     return ax
 
 
@@ -383,3 +386,22 @@ def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),facecolor=
     axis.add_patch(coarsening_marker)
     return coarsening_marker
 
+
+def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=1024,r_inner=0.3,r_outer=0.8,s=1e0):
+    YY,XX = np.meshgrid(np.linspace(-1,1,n_points),np.linspace(-1,1,n_points))
+    XX =XX.ravel()
+    YY = YY.ravel()
+    r = np.sqrt(XX**2+YY**2)
+    theta = np.arctan2(YY,XX)
+
+    r_filter = (r < r_outer) & (r > r_inner)
+
+    c = cm(general.normalize(theta))
+
+    fig,ax = plt.subplots(1,1,constrained_layout=True,figsize=(3,3))
+    #ax.matshow(r)
+    ax.scatter(XX[r_filter],YY[r_filter],s=s,c=c[r_filter])
+    ax.axis('equal')
+    ax.axis('off')
+    if filename is not None:
+        fig.savefig(filename, transparent=transparent,dpi=dpi)

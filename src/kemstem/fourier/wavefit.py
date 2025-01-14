@@ -48,16 +48,17 @@ def fit_patch(args):
     data_fits = np.stack((patch,util.func.sin2D(yx,*popt).reshape(patch.shape)),axis=2)
     return popt,perr,data_fits
 
-def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,renormalize_patches=False):
-    assert grating.shape[0] == grating.shape[1]
-    assert len(grating.shape)==2
+def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,renormalize_patches=False, match_image_shape=True):
+    # seems to all work ok for non square, aside from final interpolation
+    #assert grating.shape[0] == grating.shape[1]
+    #assert len(grating.shape)==2
 
     patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
     #patches = patches / grating.max()
 
     if renormalize_patches:
         patches = renormalize_each_patch(patches)
-
+    # Ypoints, Xpoints order should be switched (bc of the transpose) (???)
     sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
     mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
@@ -82,6 +83,11 @@ def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,r
     amplitude = np.abs(opts[:,0].reshape(subsample_shape))
     rotation = opts[:,2].reshape(subsample_shape)
     spacing = 2*np.pi / opts[:,1].reshape(subsample_shape)
+
+    if match_image_shape:
+        amplitude = util.general.rasterize_from_points(sampled_points,amplitude,grating.shape)
+        rotation = util.general.rasterize_from_points(sampled_points,rotation,grating.shape)
+        spacing = util.general.rasterize_from_points(sampled_points,spacing,grating.shape)
 
     return amplitude,spacing,rotation,sampled_points
 
