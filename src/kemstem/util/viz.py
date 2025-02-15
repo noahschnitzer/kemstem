@@ -155,6 +155,8 @@ def plot_scalar_bonds(ax,scalar,sites_1,sites_2,cmap='inferno',linewidth=1,vmin=
     """
     Plot scalar values as colored bonds between sites.
 
+    Note: to plot lines of all a single color, pass cmap=None and color=[your color of interest]
+
     Parameters
     ----------
     ax : matplotlib.axes.Axes
@@ -237,7 +239,8 @@ def plot_scalar_polygons(ax,sites,scalar,cmap='inferno',vmin=None,vmax=None,line
     return p
 
 
-def plot_phase(phase,ax=None,linewidths=1,**kwargs):
+
+def plot_phase(phase,ax=None,contour_angles=[0,2*np.pi/3,4*np.pi/3],contour_phase_shift=0,linewidths=1,colors='black',**kwargs):
     """
     Plot a phase image with contour lines.
 
@@ -249,8 +252,14 @@ def plot_phase(phase,ax=None,linewidths=1,**kwargs):
         Real valued 2D array of phase values, in radians.
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, a new figure is created.
+    contour_angles : iterable
+        Angles in the range [0,2*pi] at which to draw contour lines
+    contour_phase_shift : float
+        phase offset at which to draw contours
     linewidths : float, optional
         Width of the contour lines (default is 1).
+    colors : string or list
+        Colors passed to call to `contour` to color contour lines
     **kwargs : dict
         Additional arguments to pass to ax.contour().
 
@@ -262,12 +271,12 @@ def plot_phase(phase,ax=None,linewidths=1,**kwargs):
 
     if ax is None:
         fig,ax = plt.subplots(1,1,constrained_layout=True)
-    ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]
-    mappable = ax.matshow(phase,cmap=cmocean.cm.phase,alpha=1,vmin=0,vmax=2*np.pi)
-    ctours = [-np.sqrt(3)/2,0,np.sqrt(3)/2]#np.arange(0,2*np.pi,np.pi/4)
-    ax.contour(np.sin(phase),ctours,colors='black',alpha=1, linewidths=linewidths,linestyles='solid',**kwargs)
-    ax.axis('off')
-    return ax, mappable
+    phasemap = ax.matshow(phase%(2*np.pi),cmap=cmocean.cm.phase,alpha=1,vmin=0,vmax=2*np.pi)
+    for angle in contour_angles:
+        adj_phase = np.sin(contour_phase_shift+phase-angle)
+        adj_phase[np.cos(contour_phase_shift+phase-angle)>0] = np.nan
+        ax.contour(adj_phase,levels = [0],colors=colors,alpha=1, linewidths=linewidths,linestyles='solid',**kwargs)
+    return ax,phasemap
 
 def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf,scale_power=0.5):
     """

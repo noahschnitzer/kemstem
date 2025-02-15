@@ -48,7 +48,8 @@ def fit_patch(args):
     data_fits = np.stack((patch,util.func.sin2D(yx,*popt).reshape(patch.shape)),axis=2)
     return popt,perr,data_fits
 
-def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,renormalize_patches=False, match_image_shape=True):
+def fit_grating(grating, patch_size, step_size, guess,
+                chunksize=None,verbose=True,renormalize_patches=False, match_image_shape=True,store_full_results=False):
     # seems to all work ok for non square, aside from final interpolation
     #assert grating.shape[0] == grating.shape[1]
     #assert len(grating.shape)==2
@@ -89,7 +90,11 @@ def fit_grating(grating,patch_size,step_size,guess,chunksize=None,verbose=True,r
         rotation = util.general.rasterize_from_points(sampled_points,rotation,grating.shape)
         spacing = util.general.rasterize_from_points(sampled_points,spacing,grating.shape)
 
-    return amplitude,spacing,rotation,sampled_points
+    if store_full_results:
+        return amplitude,spacing,rotation,sampled_points, opts, errs, patches, mesh
+
+    else:
+        return amplitude,spacing,rotation,sampled_points
 
 
 def peak_to_fit_guess(pt,imshape):

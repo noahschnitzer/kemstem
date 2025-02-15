@@ -48,7 +48,7 @@ def cluster_neighbors(neighborhood, n_clusters=40):
     kmeans = KMeans(n_clusters=n_clusters,copy_x=True,random_state=1337).fit(neighborhood) # (n,2)
     return kmeans.cluster_centers_
 
-def get_vector_to_neighbors(columns,origins,guess_vector, threshold=5):
+def get_vector_to_neighbors(columns,origins,guess_vector, threshold=5,handle_nan=False):
     """
     Find the vectors from origin points to the column closest to the guess_vector.
 
@@ -73,7 +73,7 @@ def get_vector_to_neighbors(columns,origins,guess_vector, threshold=5):
         NaN values indicate no neighbor found within the threshold.
     """
 
-    match_col,match_idx,dist = util.point.get_nearest_points(columns,origins+guess_vector,k=1)
+    match_col,match_idx,dist = util.point.get_nearest_points(columns,origins+guess_vector,k=1,handle_nan=handle_nan)
     threshold_mask = dist > threshold
     match_col[threshold_mask,:] = np.nan
     return match_col - origins

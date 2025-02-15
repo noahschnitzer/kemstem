@@ -118,4 +118,4 @@ def extrapolate_point_pair(pt1,pt2,frac_pre,frac_post):
     adj1 = [pt1[0]-d0*frac_pre,pt1[1]-d1*frac_pre]
     adj2 = [pt2[0]+d0*frac_post,pt2[1]+d1*frac_post]
 
-    return np.array(adj1,adj2)
+    return np.array((adj1,adj2))
