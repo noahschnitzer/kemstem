@@ -106,8 +106,12 @@ def damp_complex_amplitude(array_c,level):
     return array_c * level / np.abs(array_c)
 
 def mask_peaks_circle(pattern_c,p,levels,radius):
+    print('mask_peaks_circle is renamed, use damp_peaks_circle')
+    return damp_peaks_circle(pattern_c,p,levels,radius)
+
+def damp_peaks_circle(pattern_c,p,levels,radius):
     """
-    Mask peaks in a complex array by setting a circular area around each to a specified amplitude.
+    Damp peaks in a complex array by setting a circular area around each to a specified amplitude.
     
     Parameters
     ----------
@@ -122,16 +126,16 @@ def mask_peaks_circle(pattern_c,p,levels,radius):
     
     Returns
     -------
-    masked_pattern_c : ndarray
-        Masked complex pattern
-    masked_image : ndarray
-        Absolute value of the inverse transform of the masked pattern. Real valued.
+    damped_pattern_c : ndarray
+        Damped complex pattern
+    damped_image : ndarray
+        Absolute value of the inverse transform of the damped pattern. Real valued.
     """
     
-    masked_pattern_c = pattern_c.copy()
+    damped_pattern_c = pattern_c.copy()
     YY,XX = np.meshgrid(np.arange(pattern_c.shape[0]),np.arange(pattern_c.shape[1]),indexing='ij')
     for it,pt in tqdm(enumerate(p)):
         circle_mask = ((XX-pt[1])**2 + (YY-pt[0])**2 )< radius**2
-        masked_pattern_c[circle_mask] = damp_complex_amplitude(masked_pattern_c[circle_mask], levels[it])
-    masked_image = np.abs(np.fft.ifft2(np.fft.ifftshift(masked_pattern_c)))
-    return masked_pattern_c, masked_image
+        damped_pattern_c[circle_mask] = damp_complex_amplitude(damped_pattern_c[circle_mask], levels[it])
+    damped_image = np.abs(np.fft.ifft2(np.fft.ifftshift(damped_pattern_c)))
+    return damped_pattern_c, damped_image

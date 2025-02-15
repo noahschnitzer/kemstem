@@ -79,7 +79,7 @@ def normalize_mean(data):
 
 
 
-def gaussian_fit_peaks(image, peaks0, window_dimension=5,store_fits=True, remove_unfit = True, verbose = True):
+def gaussian_fit_peaks(image, peaks0, window_dimension=5, remove_unfit = True, verbose = True):
     """
     Fit 2D Gaussian functions to peaks in an image.
 

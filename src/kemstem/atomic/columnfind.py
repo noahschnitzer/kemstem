@@ -4,7 +4,7 @@ import skimage
 #from scipy.ndimage import gaussian_filter, label,center_of_mass
 import matplotlib.pyplot as plt
 
-def find_columns(image, distance = 10, threshold = 0.1, deduplicate = False):
+def find_columns(image, distance = 10, threshold = 0.1):
     """
     Find column positions in an image with skimage.feature.peak_local_max.
     
@@ -16,8 +16,6 @@ def find_columns(image, distance = 10, threshold = 0.1, deduplicate = False):
         Minimum distance between peaks (default is 10), passed to peak_local_max.
     threshold : float, optional
         Intensity used for thresholding (default is 0.1).
-    deduplicate : bool, optional
-        If True, merge nearby peaks (currently not implemented) (default is False).
     
     Returns
     -------
@@ -37,14 +35,11 @@ def find_columns(image, distance = 10, threshold = 0.1, deduplicate = False):
     masked = (image_norm * thresh_mask) - threshold # max 1-threshold, min 0
     masked = masked / masked.max()
     peaks = skimage.feature.peak_local_max(masked,min_distance = distance)
-    #peaks_mask = np.zeros_like(image,dtype=bool)
-    #peaks_mask[tuple(peaks.T)] = True
-    #peak_labels = label(peaks_mask)[0]
-    #merged_peaks = center_of_mass(peaks_mask,peak_labels,range(1,np.max(peak_labels)+1))
-    
-    #peaks = np.array(merged_peaks)
     return peaks
 
 
-def refine_columns(image, columns0, window_dimension=5,store_fits=True, remove_unfit = True,verbose=True):
+def refine_columns(image, columns0, window_dimension=5, remove_unfit = True,verbose=True):
+    """
+    Refine column positions with 2D Gaussian fits. Currently wraps util.general.gaussian_fit_peaks
+    """
     return util.general.gaussian_fit_peaks(image, columns0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit,verbose=verbose)

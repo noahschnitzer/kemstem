@@ -397,6 +397,29 @@ def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),facecolor=
 
 
 def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=1024,r_inner=0.3,r_outer=0.8,s=1e0):
+    """
+    Plots a color wheel for the provided colormap
+
+    Parameters
+    ----------
+    cm : colormap
+        Colormap to plot a colorwheel for
+    filename : string, optional
+        Path to save color wheel image to.
+    dpi : int, optional
+        dots per inch for saved image. No effect if no filename provided. Default 150.
+    transparent : boolean, optional
+        Save with transparent background. Default True.
+    n_points : int, optional
+        Number of points used for plotting. Default 1024.
+    r_inner : float, optional
+        Inner radius of color wheel. Default 0.3
+    r_outer : float, optional
+        Outer radius of color wheel. Default 0.8
+    s : float, optional
+        Size of markers comprising wheel. Default 1.
+
+    """ 
     YY,XX = np.meshgrid(np.linspace(-1,1,n_points),np.linspace(-1,1,n_points))
     XX =XX.ravel()
     YY = YY.ravel()

@@ -175,5 +175,9 @@ def refine_peaks_com(pattern, p0, crop_window,iters=10):
         p_ref[it,:] = (y0,x0)
     return p_ref
 
-def refine_peaks_gf(pattern, p0, window_dimension=5,store_fits=True, remove_unfit = True,verbose=True):
-    return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit,verbose=verbose)
+def refine_peaks_gf(pattern, p0, window_dimension=5, remove_unfit = True,verbose=True):
+    """
+    Refine peak positions with 2D Gaussian fits. Currently wraps util.general.gaussian_fit_peaks
+    """
+
+    return util.general.gaussian_fit_peaks(pattern, p0, window_dimension=window_dimension, remove_unfit = remove_unfit,verbose=verbose)

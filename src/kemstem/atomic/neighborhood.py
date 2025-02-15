@@ -81,6 +81,32 @@ def get_vector_to_neighbors(columns,origins,guess_vector, threshold=5,handle_nan
 
 
 def get_connected_columns(columns, origin, vector, tolerance,bidirectional=True):
+    """
+    Find a chain of columns connected by a vector within a tolerance.
+
+    Starting from an origin point, iteratively finds the nearest column in the
+    direction of the specified vector. Can search in both directions.
+
+    Parameters
+    ----------
+    columns : ndarray, shape (n,2)
+        Array of all column positions (y,x).
+    origin : ndarray, shape (2,)
+        Starting point coordinates (y,x).
+    vector : ndarray, shape (2,)
+        Vector defining the direction to search for connected columns.
+    tolerance : float
+        Maximum allowed distance between expected and actual column positions.
+    bidirectional : bool, optional
+        If True, search in both positive and negative vector directions (default is True).
+
+    Returns
+    -------
+    tuple
+        - ndarray: Array of connected column positions
+        - int: Index of the origin point in the chain
+    """
+
     err = 0
     current_c = origin
     chain = []
@@ -102,6 +128,41 @@ def get_connected_columns(columns, origin, vector, tolerance,bidirectional=True)
 
 
 def index_lattice(columns,origin,v1,v2,tolerance=1,max_n1=20,max_n2=20,cumulative_adjust=False):
+    """
+    Index atomic columns in a 2D lattice defined by two vectors.
+
+    Maps columns to lattice coordinates defined by two basis vectors v1 and v2,
+    starting from an origin point. Can either use fixed vectors or adjust them
+    cumulatively along chains of atoms.
+
+    Parameters
+    ----------
+    columns : ndarray, shape (n,2)
+        Array of all column positions (y,x).
+    origin : ndarray, shape (2,)
+        Origin point of the lattice (y,x).
+    v1, v2 : ndarray, shape (2,)
+        Basis vectors defining the lattice.
+    tolerance : float, optional
+        Maximum allowed distance for matching columns to lattice points (default is 1).
+    max_n1, max_n2 : int, optional
+        Maximum number of lattice points to consider in each direction (default is 20).
+    cumulative_adjust : bool, optional
+        If True, adjust vectors by following chains of atoms. If False, use fixed
+        vectors from the origin (default is False).
+
+    Returns
+    -------
+    tuple
+        If cumulative_adjust is True:
+            - ndarray: Array of lattice indices
+            - ndarray: Array of indexed column positions
+        If cumulative_adjust is False:
+            - ndarray: Array of lattice indices
+            - ndarray: Array of indexed column positions
+            - ndarray: Array of ideal lattice positions
+    """
+
     indices = np.array(np.meshgrid(np.arange(-max_n1,max_n1+1),np.arange(-max_n2,max_n2+1),indexing='ij'))
     indices = np.moveaxis(indices,0,-1)
     if cumulative_adjust:
