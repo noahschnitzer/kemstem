@@ -4,7 +4,7 @@ import scipy.optimize as opt
 from concurrent.futures import ProcessPoolExecutor
 
 
-def create_patches(grating, patch_size, step_size):
+def _create_patches(grating, patch_size, step_size):
     """
     Create patches from a grating image for analysis.
     
@@ -39,7 +39,8 @@ def create_patches(grating, patch_size, step_size):
     Xpoints = np.arange(grating.shape[1])[patch_radius:-(patch_radius+1):step_size]
     for yy in Ypoints:
         for xx in Xpoints:
-            patches.append(grating[yy-patch_radius:yy+patch_radius+1,xx-patch_radius:xx+patch_radius+1])
+            #patches.append(grating[yy-patch_radius:yy+patch_radius+1,xx-patch_radius:xx+patch_radius+1])
+            patches.append(util.get_patch(grating, [yy,xx], patch_size))
     patches = np.array(patches)
     shape = (len(Ypoints),len(Xpoints))
     return patches,Ypoints,Xpoints,shape
@@ -152,7 +153,7 @@ def fit_grating(grating, patch_size, step_size, guess,
         mesh : tuple
             Coordinate meshgrid for patches.
     """
-    patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
+    patches,Ypoints,Xpoints,subsample_shape = _create_patches(grating,patch_size,step_size)
     #patches = patches / grating.max()
 
     if renormalize_patches:
@@ -251,7 +252,7 @@ def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None,renormaliz
         - Original and fitted data
     """
 
-    patches,Ypoints,Xpoints,subsample_shape = create_patches(grating,patch_size,step_size)
+    patches,Ypoints,Xpoints,subsample_shape = _create_patches(grating,patch_size,step_size)
     if renormalize_patches:
         patches = _renormalize_each_patch(patches)
     mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))

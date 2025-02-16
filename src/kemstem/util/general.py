@@ -77,6 +77,14 @@ def normalize_mean(data):
 
     return (data - data.mean()) / np.std(data)
 
+def get_patch(image, p, patch_dimension):
+    if patch_dimension % 2 == 0:
+        raise ValueError('patch_dimension must be odd.')
+    rad = patch_dimension//2
+    y = p[0]
+    x = p[1]
+    patch = image[y - rad : y + rad + 1, x - rad : x + rad + 1]
+    return patch
 
 
 def gaussian_fit_peaks(image, peaks0, window_dimension=5, remove_unfit = True, verbose = True):
@@ -144,7 +152,8 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5, remove_unfit = True, v
         x0_i = int(x0[it])
         y0_i = int(y0[it])
         
-        ydata = image[y0_i - winrad : y0_i + winrad + 1, x0_i - winrad : x0_i + winrad + 1]
+        #ydata = image[y0_i - winrad : y0_i + winrad + 1, x0_i - winrad : x0_i + winrad + 1]
+        ydata = get_patch(image, (y0_i,x0_i), window_dimension)
         if ydata.shape != (window_dimension, window_dimension):
             errors[it] = True
             continue
