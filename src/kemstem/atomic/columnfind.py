@@ -42,4 +42,4 @@ def refine_columns(image, columns0, window_dimension=5, remove_unfit = True,verb
     """
     Refine column positions with 2D Gaussian fits. Currently wraps util.general.gaussian_fit_peaks
     """
-    return util.general.gaussian_fit_peaks(image, columns0, window_dimension=window_dimension,store_fits=store_fits, remove_unfit = remove_unfit,verbose=verbose)
+    return util.general.gaussian_fit_peaks(image, columns0, window_dimension=window_dimension, remove_unfit = remove_unfit,verbose=verbose)

@@ -20,7 +20,7 @@ def faux_highpass_filter(image,lowpass_sigma):
     ndarray
         High-pass filtered image (original minus low-pass filtered version).
     """
-	return image - gaussian_filter(image,lowpass_sigma)
+    return image - gaussian_filter(image,lowpass_sigma)
 
 
 def hann_filter(image):
