@@ -14,6 +14,8 @@ About kemstem
 - `Smeaton, M. A., El Baggari, I., Balazs, D. M., Hanrath, T., & Kourkoutis, L. F. (2021). Mapping defect relaxation in quantum dot solids upon in situ heating. ACS nano, 15(1), 719-726. <https://doi.org/10.1021/acsnano.0c06990>`_
 - `Goodge, B. H., El Baggari, I., Hong, S. S., Wang, Z., Schlom, D. G., Hwang, H. Y., & Kourkoutis, L. F. (2022). Disentangling coexisting structural order through phase lock-in analysis of atomic-resolution STEM data. Microscopy and Microanalysis, 28(2), 404-411. <https://doi.org/10.1017/S1431927622000125>`_
 
+The source is available `on Github <https://github.com/noahschnitzer/kemstem>`_
+
 Installation
 ------------
 ``kemstem`` can be installed from PyPI with pip:
