@@ -1,4 +1,5 @@
 .. _atomic:
+
 kemstem.atomic
 ======================
 

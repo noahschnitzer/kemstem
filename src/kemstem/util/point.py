@@ -15,7 +15,8 @@ def get_nearest_points(points, guesses, k=1, handle_nan=False):
     Find k nearest neighbors for each point in guesses using KDTree.
     Handles NaN values in guesses by returning NaN for those positions (still finnicky).
     
-    Parameters:
+    Parameters
+    ----------
     points: array-like, shape (n, d)
         The reference points to search within
     guesses: array-like, shape (m, d)
@@ -23,9 +24,10 @@ def get_nearest_points(points, guesses, k=1, handle_nan=False):
     k: int
         Number of nearest neighbors to find
         
-    Returns:
+    Returns
+    -------
     tuple of (match_points, idx, dist) where each has NaN values
-    corresponding to NaN inputs in guesses
+        corresponding to NaN inputs in guesses
     
     """
     guesses = np.asarray(guesses)

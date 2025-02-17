@@ -76,7 +76,7 @@ def select_peaks(pattern,preselected=None, cmap='gray',vmin=None,vmax=None,zoom=
     added and removed in the midst of analysis, but this data structure does not conform 
     to the kemstem conventions for points. To use the selected peaks for further analysis
     the result should be transformed as:
-        p0 = np.array(peaks_selected).T
+    p0 = np.array(peaks_selected).T
     to arrive at an array with shape (n,2).
     
     """

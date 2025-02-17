@@ -1,4 +1,5 @@
 .. _overview:
+
 Package Overview
 ================
 The ``kemstem`` package is entirely composed of functions - for flexibility and interoperability no custom data structures are implemented, functions take and return numpy arrays. 
