@@ -26,6 +26,7 @@ def get_nearest_points(points, guesses, k=1, handle_nan=False):
     Returns:
     tuple of (match_points, idx, dist) where each has NaN values
     corresponding to NaN inputs in guesses
+    
     """
     guesses = np.asarray(guesses)
     points = np.asarray(points)
