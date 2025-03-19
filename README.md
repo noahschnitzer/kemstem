@@ -6,12 +6,15 @@
 
 ## Installation
 ``kemstem`` can be installed from PyPI with pip:
+
 `> pip install kemstem`
 
 Or to install the development version, clone from github and install with pip:
 
 `> git clone https://github.com/noahschnitzer/kemstem.git`
+
 `> cd kemstem`
+
 `> pip install -e . `
 
 ## Examples
