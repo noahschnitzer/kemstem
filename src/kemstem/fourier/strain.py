@@ -2,19 +2,23 @@ import numpy as np
 from scipy.signal import medfilt2d
 
 
-def phase_to_strain(phase, qx, qy, mask_threshold=2.):
+def phase_to_strain(phase, qref, mask_threshold=2.):
     """
     Calculate longitudinal and transverse strain components from spatially varying phase.
     
     Projections of the gradient of the phase along and transverse to a reference
     wavevector are assigned as the longitudinal and transverse components.
+
+    Typically, the appropriate reference wavevector is the vector from the filtered 
+    peak (p) in the Fourier transform to its center, e.g.:
+    `qref = p - np.array(image.shape)/2`
     
     Parameters
     ----------
     phase : ndarray
         Real valued 2D phase image.
-    qx, qy : float
-        Reference wavevector x and y components.
+    qref : tuple
+        Reference wavevector (y, x).
     mask_threshold : float, optional
         Threshold for masking strain values (default is 2.0).
 
@@ -31,6 +35,8 @@ def phase_to_strain(phase, qx, qy, mask_threshold=2.):
     a real valued phase. A median filter is applied to remove artifacts from
     phase wrapping. 
     """
+    qx = qref[1]
+    qy = qref[0]
 
     grad_phi = np.gradient(phase)
 

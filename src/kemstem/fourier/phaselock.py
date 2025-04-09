@@ -19,10 +19,8 @@ def create_references(p,shape):
         Real valued sine reference wave
     sinRef : ndarray
         Real valued cosine reference wave
-    qx : float
-        Reference wavevector x component
-    qy : float
-        Reference wavevector y component
+    p : tuple
+        Reference wavevector (y, x).
     """
 
     xsize = shape[1]

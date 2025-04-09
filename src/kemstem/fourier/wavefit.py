@@ -141,8 +141,8 @@ def fit_grating(grating, patch_size, step_size, guess,
         Fitted spacing values (pixels).
     rotation : ndarray
         Fitted rotation angles (radians).
-    sampled_points : ndarray
-        Coordinates of patch centers.
+    sampled_points : ndarray (n,2)
+        Coordinates of patch centers, each tuple is a (y,x) point
     If store_full_results is True, also returns:
         opts : ndarray
             All fitted parameters.
@@ -158,8 +158,14 @@ def fit_grating(grating, patch_size, step_size, guess,
 
     if renormalize_patches:
         patches = _renormalize_each_patch(patches)
+    
     # Ypoints, Xpoints order should be switched (bc of the transpose) (???)
-    sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
+    # sampled_points = np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')).T.reshape(-1,2)
+
+    # corrected version working for non equal x and y axes. Key point is that the (2,y,x) meshgrid is transformed first
+    # to (y,x,2), where the x/y order is significant for later re-raveling, then to (n,2)
+    sampled_points = np.moveaxis(np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')),[0,1,2],[2,0,1],).reshape(-1,2,) 
+
     mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
     npatches = patches.shape[0]
     if verbose:

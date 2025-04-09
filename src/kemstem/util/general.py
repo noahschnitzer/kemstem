@@ -216,7 +216,8 @@ def rasterize_from_points(points,values,output_shape,method='nearest',fill_value
     -----
     This function uses scipy.interpolate.griddata for interpolation.
     """
-    xi = np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')).T
+    #xi = np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')).T
+    xi = np.moveaxis(np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')),[0,1,2],[2,0,1])
     interp = interpolate.griddata(points,values.ravel(),xi,method=method,fill_value=fill_value)
     return interp    
 
