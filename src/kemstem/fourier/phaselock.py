@@ -30,7 +30,7 @@ def create_references(p,shape):
     x = p[1]
     y = p[0]
     qx=2*np.pi*(xsize/2.- x)/xsize
-    qy=2*np.pi*(xsize/2.- y)/ysize
+    qy=2*np.pi*(ysize/2.- y)/ysize
 
     YY,XX = np.meshgrid(np.arange(ysize),np.arange(xsize),indexing='ij')
     cosRef = np.cos(qx*XX+qy*YY)
