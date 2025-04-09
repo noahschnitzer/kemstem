@@ -95,8 +95,8 @@ def select_peaks(pattern,preselected=None, cmap='gray',vmin=None,vmax=None,zoom=
     def replot():
         ax.matshow(np.real(pattern),vmin=vmin,vmax=vmax,cmap=cmap)
         if zoom is not None:
-            ax.set_xlim(pattern.shape[0]/2 - zoom ,pattern.shape[0]/2 + zoom)
-            ax.set_ylim(pattern.shape[1]/2 + zoom ,pattern.shape[1]/2 - zoom)
+            ax.set_xlim(pattern.shape[1]/2 - zoom ,pattern.shape[1]/2 + zoom)
+            ax.set_ylim(pattern.shape[0]/2 + zoom ,pattern.shape[0]/2 - zoom)
         ax.axis('off')
 
     def _onclick_event(event):

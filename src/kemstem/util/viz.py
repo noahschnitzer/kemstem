@@ -48,8 +48,8 @@ def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoo
     	fig,ax = plt.subplots(1,1,constrained_layout=True)
     if image is not None:
     	ax.matshow(image,cmap='gray',vmin=vmin,vmax=vmax)
-    	ax.set_xlim(image.shape[0]/2 - zoom ,image.shape[0]/2 + zoom)
-    	ax.set_ylim(image.shape[1]/2 + zoom ,image.shape[1]/2 - zoom)
+    	ax.set_xlim(image.shape[1]/2 - zoom ,image.shape[1]/2 + zoom)
+    	ax.set_ylim(image.shape[0]/2 + zoom ,image.shape[0]/2 - zoom)
 
     ax.plot(x,y,'.',color=color)
     for it in range(len(x)):
