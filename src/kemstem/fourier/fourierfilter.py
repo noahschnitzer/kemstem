@@ -27,7 +27,7 @@ def create_gaussian_filter(shape,p,sigma):
     filt = np.zeros(shape)
     YY,XX = np.meshgrid(np.arange(shape[0]),np.arange(shape[1]),indexing='ij')
     if len(p.shape)==2:
-        for pt in np.array(p).T:
+        for pt in p:
             filt = filt + np.reshape(util.func.gaussian_2d((YY,XX),1,pt[1],pt[0],sigma,sigma,0,0),shape)
     else:
         filt = np.reshape(util.func.gaussian_2d((YY,XX),1,p[1],p[0],sigma,sigma,0,0),shape)
@@ -137,5 +137,5 @@ def damp_peaks_circle(pattern_c,p,levels,radius):
     for it,pt in tqdm(enumerate(p)):
         circle_mask = ((XX-pt[1])**2 + (YY-pt[0])**2 )< radius**2
         damped_pattern_c[circle_mask] = damp_complex_amplitude(damped_pattern_c[circle_mask], levels[it])
-    damped_image = np.abs(np.fft.ifft2(np.fft.ifftshift(damped_pattern_c)))
+    damped_image = np.real(np.fft.ifft2(np.fft.ifftshift(damped_pattern_c)))
     return damped_pattern_c, damped_image
