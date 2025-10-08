@@ -33,7 +33,7 @@ def create_gaussian_filter(shape,p,sigma):
         filt = np.reshape(util.func.gaussian_2d((YY,XX),1,p[1],p[0],sigma,sigma,0,0),shape)
     return filt
 
-def fourier_filter(pattern_c,p,sigma):
+def fourier_filter(pattern_c,p,sigma,phase_shift=0):
     """
     Apply a Gaussian filter to a complex array.
 
@@ -45,6 +45,8 @@ def fourier_filter(pattern_c,p,sigma):
         Peak position(s) (y, x) in the Fourier transform.
     sigma : float
         Standard deviation of the Gaussian filter.
+    phase_shift : float
+        Value (typically [0,2pi]) to shift the phase of the filtered signals. 
 
     Returns
     -------
@@ -57,7 +59,7 @@ def fourier_filter(pattern_c,p,sigma):
     """
 
     filt = create_gaussian_filter(pattern_c.shape,p,sigma)
-    filtered_pattern_c = pattern_c * filt
+    filtered_pattern_c = pattern_c * filt * np.exp(-1j*phase_shift)
     filtered_im_c = np.fft.ifft2(np.fft.ifftshift(filtered_pattern_c))
 
     return filtered_im_c, filtered_pattern_c, filt
