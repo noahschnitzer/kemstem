@@ -4,7 +4,7 @@ from scipy.ndimage import center_of_mass
 from .. import util
 
 
-def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
+def prepare_fourier_pattern(image,log=False, log_offset = 1e0, edge_reduction=None):
     """
     Calculate 0-frequency centered FFT of a 2D image.
 
@@ -18,17 +18,29 @@ def prepare_fourier_pattern(image,log=False, log_offset = 1e0):
         Whether to take absolute value and log transform the result for visualization
     log_offset : float
         Value added to FFT magnitude prior to log transform to enhance contrast.
-
+    edge_reduction : string
+        Optionally apply a transform to the image to reduce edge artifacts. Options are:
+        'hann' -- applies hann window, see util.image.hann_filter
+        'pplus' -- applies periodic-plus-smooth decomposition, see util.image.periodic_plus_smooth_decomposition
     Returns
     -------
     pattern : ndarray
         The Fourier pattern, with the same shape as the input image
 
     """
-    if log:
-        return np.log(log_offset+np.abs(np.fft.fftshift(np.fft.fft2(image))))
+    if edge_reduction is not None:
+        if edge_reduction == 'hann':
+            ft = util.image.hann_filter(image)[1]
+        elif edge_reduction == 'pplus':
+            ft = util.image.periodic_plus_smooth_decomposition(image)[0]
+        else:
+            raise ValueError(f"Invalid argument: {edge_reduction!r}. Expected 'hann' or 'pplus'.")
     else:
-        return np.fft.fftshift(np.fft.fft2(image))
+        ft = np.fft.fft2(image)
+    ft = np.fft.fftshift(ft)
+    if log:
+        ft = np.log(log_offset+np.abs(ft))
+    return ft
 
 def select_peaks(pattern,preselected=None, cmap='gray',vmin=None,vmax=None,zoom=None,figsize=None,select_conjugates=False,delete_within=None):
     """
