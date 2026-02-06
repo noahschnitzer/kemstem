@@ -74,3 +74,43 @@ def phaselock(filtered_im_c,p,sigma):
     #Get the phase shift (distortions from reference images)
     theta_lf=np.arctan2(ifftB, ifftA)
     return theta_lf % (2*np.pi)
+
+
+def gpa(filtered_im_c, p):
+    """
+    Calculate the Geometric Phase from a fourier filtered complex image.
+    
+    This function subtracts the carrier frequency corresponding to peak `p` 
+    from the phase of the filtered image.
+
+    Implemented based on Niels Cautaerts's TEMMETA package.
+
+    Parameters
+    ----------
+    filtered_im_c : ndarray
+        Fourier filtered complex image.
+    p : tuple
+        Peak position (y, x) in the Fourier transform used for filtering.
+
+    Returns
+    -------
+    gpa_phase : ndarray
+        Real valued phase image.
+    """
+    # Calculate carrier frequency components
+    cosRef, sinRef, qx, qy = create_references(p, filtered_im_c.shape)
+    
+    # Create coordinate grids
+    YY, XX = np.meshgrid(np.arange(filtered_im_c.shape[0]), 
+                         np.arange(filtered_im_c.shape[1]), indexing='ij')
+    
+    # Calculate phase ramp 2*pi*g.r
+    phase_ramp = qx*XX + qy*YY
+    
+    # Extract phase from filtered image
+    raw_phase = np.angle(filtered_im_c)
+    
+    # Subtract carrier frequency phase
+    gpa_phase = raw_phase + phase_ramp
+    
+    return gpa_phase

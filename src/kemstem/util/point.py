@@ -90,6 +90,23 @@ def get_nearest_points(points, guesses, k=1, handle_nan=False):
 
 
 def rotate_points(points,angle,center=(0,0)):
+    """
+    Rotate points around a center by a given angle.
+    
+    Parameters
+    ----------
+    points : array-like, shape (n, 2)
+        List of (x,y) points to rotate.
+    angle : float
+        Rotation angle in radians.
+    center : tuple, optional
+        Center of rotation (x,y). Default is (0,0).
+        
+    Returns
+    -------
+    rotated : ndarray, shape (n, 2)
+        The rotated points.
+    """
     center = np.array(center)
     rotated = points - center
     rotated[:,1] = np.cos(angle)*(points[:,1] - center[1]) - np.sin(angle)*(points[:,0] - center[0])
@@ -98,9 +115,30 @@ def rotate_points(points,angle,center=(0,0)):
     return rotated
 
 def rotate_image_and_calculate_transform(angle_rad, im):
+    """
+    Rotate an image and return functions to map points between original and rotated coordinates.
+    
+    Parameters
+    ----------
+    angle_rad : float
+        Rotation angle in radians.
+    im : ndarray
+        Image to rotate.
+        
+    Returns
+    -------
+    rot_im : ndarray
+        The rotated image.
+    applyToPoints : function
+        Function that takes points (y,x) in original image coordinates and returns
+        points in the rotated image coordinates.
+    applyToImage : function
+        Function that takes an image and applies the same rotation.
+    """
     rot_im = rotate(im,-angle_rad*180/np.pi,resize=False,preserve_range=True) # rotation centered on (cols / 2 - 0.5, rows / 2 - 0.5)
     
     def applyToPoints(c):
+        """Map points from original image to rotated image coordinates."""
         xs = c[:,1]
         ys = c[:,0]
         xs = xs - rot_im.shape[1]/2 - 0.5
@@ -109,12 +147,32 @@ def rotate_image_and_calculate_transform(angle_rad, im):
         rot_ys = xs*np.sin(angle_rad) + ys*np.cos(angle_rad) +  rot_im.shape[0]/2  + 0.5
         return np.array((rot_ys,rot_xs)).T
     def applyToImage(nim):
+        """Apply the calculated rotation to another image."""
         return rotate(nim,-angle_rad*180/np.pi,resize=False,preserve_range=True) 
-
+    
     return rot_im, applyToPoints,applyToImage
 
 
 def extrapolate_point_pair(pt1,pt2,frac_pre,frac_post):
+    """
+    Extrapolate a line segment defined by two points.
+    
+    Parameters
+    ----------
+    pt1 : array-like
+        First point (y, x).
+    pt2 : array-like
+        Second point (y, x).
+    frac_pre : float
+        Fraction of the segment length to extend before pt1.
+    frac_post : float
+        Fraction of the segment length to extend after pt2.
+        
+    Returns
+    -------
+    extrapolated : ndarray, shape (2, 2)
+        Array containing the two extrapolated points [adj1, adj2].
+    """
     d0 = pt2[0]-pt1[0]
     d1 = pt2[1]-pt1[1]
     
