@@ -8,6 +8,7 @@ import cmocean
 from skimage.util import montage
 
 from . import general
+from .colormaps import vector_to_color
 
 def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r', fontsize=8):
     """
@@ -331,7 +332,9 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         triangle=Polygon(xy, closed=True)
         patches.append(triangle)
 
-    varray = []
+    varray = None
+    facecolors = None
+    vnorm = None
     
     if type(colors) is str and colors=='angle':
         #p.set_array((angles+angleshift)%(2*np.pi))
@@ -345,6 +348,30 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         #p.set_array(mags)
         varray = mags
         vnorm = Normalize(vmin=None,vmax=None,clip=False)
+    
+    elif type(colors) is str and colors == 'vector':
+        # Parse cmap for method and center
+        # Defaults
+        method = 'lab'
+        center = 'white'
+        
+        # Check if cmap string provides hints
+        if isinstance(cmap, str):
+            parts = cmap.split('_')
+            # Check for method
+            if parts[0] in ['lab', 'hsv']:
+                method = parts[0]
+            # Check for center
+            if len(parts) > 1 and parts[1] in ['white', 'black']:
+                center = parts[1]
+            elif cmap in ['white', 'black']: # handle case like 'white' implying 'lab_white'
+                center = cmap
+        
+        # Calculate max magnitude for normalization if not provided via disp_max
+        # If disp_max is inf, use the max of the data
+        max_mag = disp_max if disp_max != np.inf else np.max(mags) if len(mags) > 0 else 1.0
+
+        facecolors = vector_to_color(angles + angleshift, mags, method=method, center=center, max_mag=max_mag)
 
     elif type(colors) is np.ndarray and colors.shape[0] == columns.shape[0]:
         ucolors = colors[mask_sites]
@@ -354,8 +381,13 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
 
     else:
         print('No usable colors')
-    p = PatchCollection(patches, cmap=cmap, alpha=1,norm=vnorm)
-    p.set_array(varray)
+    
+    if facecolors is not None:
+         p = PatchCollection(patches, facecolors=facecolors, alpha=1)
+    else:
+         p = PatchCollection(patches, cmap=cmap, alpha=1, norm=vnorm)
+         p.set_array(varray)
+
     p.set_edgecolor('k')
     p.set_linewidth(linewidth)
     if ax is None:
@@ -396,14 +428,16 @@ def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),facecolor=
     return coarsening_marker
 
 
-def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=1024,r_inner=0.3,r_outer=0.8,s=1e0):
+def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_inner=0.3,r_outer=0.8,s=1e0):
     """
-    Plots a color wheel for the provided colormap
+    Plots a color wheel for the provided colormap or vector coloring method.
 
     Parameters
     ----------
-    cm : colormap
-        Colormap to plot a colorwheel for
+    cm : colormap or str
+        Colormap to plot a colorwheel for. Can be a matplotlib colormap object, 
+        a string name of a matplotlib colormap, or a vector coloring string 
+        (e.g., 'lab_white', 'hsv_black').
     filename : string, optional
         Path to save color wheel image to.
     dpi : int, optional
@@ -411,7 +445,7 @@ def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=1024,r_i
     transparent : boolean, optional
         Save with transparent background. Default True.
     n_points : int, optional
-        Number of points used for plotting. Default 1024.
+        Number of points used for plotting along one dimension (grid is n_points x n_points). Default 1024.
     r_inner : float, optional
         Inner radius of color wheel. Default 0.3
     r_outer : float, optional
@@ -427,12 +461,44 @@ def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=1024,r_i
     theta = np.arctan2(YY,XX)
 
     r_filter = (r < r_outer) & (r > r_inner)
+    
+    # Handle vector coloring string
+    is_vector_color = False
+    if isinstance(cm, str):
+        parts = cm.split('_')
+        if parts[0] in ['lab', 'hsv']:
+            is_vector_color = True
+            method = parts[0]
+            center = parts[1] if len(parts) > 1 else 'white'
+            
+            # Normalize r for magnitude input [0, 1] relative to r_outer?
+            # Or just pass r directly if we consider r_outer to be max_mag=1?
+            # Let's say magnitude varies from 0 to 1 at r=1.
+            # But here we are plotting r up to 1 (or close to it).
+            # So magnitudes = r.
+            # We want colors at r=r_outer to be full magnitude?
+            # Actually, `vector_to_color` takes magnitudes and normalizing factor.
+            # Let's use max_mag=r_outer so that the outer edge is "full saturation/magnitude".
+            magnitudes = r[r_filter]
+            angles = theta[r_filter]
+            
+            c = vector_to_color(angles, magnitudes, method=method, center=center, max_mag=r_outer)
+            
+        else:
+            # Try to get matplotlib colormap from string
+            try:
+                cm = plt.get_cmap(cm)
+            except ValueError:
+                print(f"Warning: '{cm}' is not a known colormap. Using default.")
+                cm = plt.get_cmap('viridis')
 
-    c = cm(general.normalize(theta))
+    if not is_vector_color:
+        # Standard matplotlib colormap behavior
+        c = cm(general.normalize(theta[r_filter]))
 
     fig,ax = plt.subplots(1,1,constrained_layout=True,figsize=(3,3))
     #ax.matshow(r)
-    ax.scatter(XX[r_filter],YY[r_filter],s=s,c=c[r_filter])
+    ax.scatter(XX[r_filter],YY[r_filter],s=s,c=c)
     ax.axis('equal')
     ax.axis('off')
     if filename is not None:
