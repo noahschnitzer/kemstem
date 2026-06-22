@@ -1,7 +1,6 @@
 import numpy as np
 from tqdm import tqdm
 from scipy.optimize import curve_fit
-from scipy import interpolate
 from . import func
 def normalize(data):
     """
@@ -188,37 +187,3 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5, remove_unfit = True, v
             yf[errors] = y0[errors]
 
     return np.array((yf,xf)).T, errors, opts, data_fits
-
-
-def rasterize_from_points(points,values,output_shape,method='nearest',fill_value=np.nan):
-    """
-    Interpolate scattered data onto a regular grid.
-
-    Parameters
-    ----------
-    points : ndarray, shape (n,2)
-        Array of point coordinate pairs (y,x).
-    values : ndarray, shape (n,)
-        Array of values at the given points.
-    output_shape : tuple
-        Shape of the output grid (H, W).
-    method : str, optional
-        Interpolation method: 'nearest', 'linear', or 'cubic' (default is 'nearest').
-    fill_value : float, optional
-        Value used to fill points outside of the convex hull of input points (default is np.nan).
-
-    Returns
-    -------
-    interp : ndarray
-        Interpolated values on a regular grid with the specified output_shape.
-
-    Notes
-    -----
-    This function uses scipy.interpolate.griddata for interpolation.
-    """
-    #xi = np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')).T
-    xi = np.moveaxis(np.array(np.meshgrid(np.arange(output_shape[0]),np.arange(output_shape[1]),indexing='ij')),[0,1,2],[2,0,1])
-    interp = interpolate.griddata(points,values.ravel(),xi,method=method,fill_value=fill_value)
-    return interp    
-
-

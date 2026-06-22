@@ -191,9 +191,9 @@ def fit_grating(grating, patch_size, step_size, guess,
     spacing = 2*np.pi / opts[:,1].reshape(subsample_shape)
 
     if match_image_shape:
-        amplitude = util.general.rasterize_from_points(sampled_points,amplitude,grating.shape)
-        rotation = util.general.rasterize_from_points(sampled_points,rotation,grating.shape)
-        spacing = util.general.rasterize_from_points(sampled_points,spacing,grating.shape)
+        amplitude = util.point.interpolate_points(sampled_points,amplitude,grating.shape)
+        rotation = util.point.interpolate_points(sampled_points,rotation,grating.shape)
+        spacing = util.point.interpolate_points(sampled_points,spacing,grating.shape)
 
     if store_full_results:
         return amplitude,spacing,rotation,sampled_points, opts, errs, patches, mesh
