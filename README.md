@@ -20,7 +20,7 @@ pip install -e .
 ```
 
 ## Examples
-Example jupyter notebooks with demonstration workflows can be found along with sample data under `example_notebooks`.
+Example jupyter notebooks with demonstration workflows can be found along with sample data under `example_notebooks`. Some example datasets are included in the repository itself, the complete collection of example datasets is currently available at [https://cornell.box.com/s/sq2pcelkxm7aat7ayyick02aaf1ijqrv](https://cornell.box.com/s/sq2pcelkxm7aat7ayyick02aaf1ijqrv).
 
 ## Documentation
 Package documentation is available at [https://kemstem.readthedocs.io/en/latest/](https://kemstem.readthedocs.io/en/latest/).
