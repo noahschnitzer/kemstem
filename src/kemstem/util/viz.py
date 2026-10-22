@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap, Normalize, is_color_like, to_rgba
-from matplotlib.patches import Polygon, Circle
+from matplotlib.patches import Polygon, Circle, FancyArrow
 from matplotlib.collections import LineCollection,PatchCollection
 
 import cmocean
@@ -278,9 +278,9 @@ def plot_phase(phase,ax=None,contour_angles=[0,2*np.pi/3,4*np.pi/3],contour_phas
         ax.contour(adj_phase,levels = [0],colors=colors,alpha=1, linewidths=linewidths,linestyles='solid',**kwargs)
     return ax,phasemap
 
-def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf,scale_power=0.5):
+def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap='hsv',linewidth=.2,shape=4,angleshift=0,disp_min=0,disp_max=np.inf,scale_power=0.5,style='triangle',arrow_width=None):
     """
-    Plot n displaced sites as colored triangles.
+    Plot n displaced sites as colored triangles or arrows.
 
     Parameters
     ----------
@@ -303,21 +303,35 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
     cmap : str, optional
         Colormap for the triangles (default is 'hsv').
     linewidth : float, optional
-        Width of the triangle edges (default is 0.2).
+        Width of the triangle or arrow edges (default is 0.2).
     shape : float, optional
-        Shape factor for triangles (default is 4).
+        Shape factor for triangles, the ratio of length to half the base
+        width (default is 4). Not used for arrows.
     angleshift : float, optional
         Angle shift for color mapping (default is 0).
     disp_min, disp_max : float, optional
         Minimum and maximum displacement magnitudes to plot.
     scale_power : float, optional
         Power scaling factor for displacement magnitudes (default is 0.5).
+    style : {'triangle', 'arrow'}, optional
+        Marker drawn at each site (default is 'triangle'). Both start at the
+        site and have length (scale*|displacement|)**scale_power.
+    arrow_width : float, optional
+        Shaft width of the arrows in data units (pixels). As in a quiver plot,
+        all arrows share the same shaft width and head size (head width 3x and
+        head length 5x the shaft width), and arrows shorter than the head are
+        shrunk as a whole. If None, 0.1 times the median arrow length is used;
+        pass a value to keep arrows consistent between plots (e.g. with a
+        separately plotted scale). Not used for triangles.
 
     Returns
     -------
     matplotlib.collections.PatchCollection
-        The collection of triangle patches.
+        The collection of triangle or arrow patches.
     """
+    if style not in ('triangle', 'arrow'):
+        raise ValueError(f"Invalid argument: style={style!r}. Expected 'triangle' or 'arrow'.")
+
 
     mask_sites = (np.linalg.norm(displacements,axis=1) < disp_max) & (np.linalg.norm(displacements,axis=1) > disp_min)
     x0 = columns[mask_sites,1] 
@@ -326,16 +340,22 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
     dy0 = displacements[mask_sites,0]* scale
     angles = np.arctan2(dy0,dx0)
     mags = np.linalg.norm(displacements[mask_sites,:],axis=1)
+    lengths = np.hypot(dx0, dy0) ** scale_power
+    if style == 'arrow' and arrow_width is None:
+        arrow_width = 0.1*np.median(lengths) if len(lengths) > 0 else 1.0
     patches=[]
     for i in range(len(x0)):
         y,x=y0[i],x0[i]
-        dy,dx=dy0[i],dx0[i]
-        L=(dx**2.+dy**2.)**(.5)
-        L = L ** scale_power
-        L2=L/shape
-        xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
-        triangle=Polygon(xy, closed=True)
-        patches.append(triangle)
+        L = lengths[i]
+        if style == 'triangle':
+            L2=L/shape
+            xy = np.array([[x,y],[x,y],[x,y]]) +np.array([[L*np.cos(angles[i]), L*np.sin(angles[i])], [L2*np.sin(angles[i]), -L2*np.cos(angles[i])], [-L2*np.sin(angles[i]), L2*np.cos(angles[i])]])
+            patches.append(Polygon(xy, closed=True))
+        else:
+            # quiver-style proportions in units of shaft width, scaled down for arrows shorter than the head
+            w = arrow_width * min(1, L/(5*arrow_width))
+            patches.append(FancyArrow(x, y, L*np.cos(angles[i]), L*np.sin(angles[i]), width=w,
+                                      head_width=3*w, head_length=5*w, overhang=0.1, length_includes_head=True))
 
     varray = None
     facecolors = None
