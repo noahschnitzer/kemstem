@@ -104,9 +104,14 @@ def _calculate_phase_gradient_complex(phase, axis):
     return grad
 
 
-def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
+def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None, basis='g1', angle=0.0):
     """
     Calculate the full 2D strain tensor from two phase images.
+
+    The tensor is expressed in an orthonormal frame (x', y') selected with
+    `basis` and `angle`. The x' axis points along the reference direction set
+    by `basis`, rotated by `angle`, and y' is x' rotated by +90 degrees. Angles
+    are measured from +x toward +y, i.e. clockwise as displayed (y down).
 
     Implemented based on Niels Cautaerts's TEMMETA package.
     
@@ -122,17 +127,34 @@ def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
         Peak position (y, x) for reflection 2 in the Fourier transform.
     mask_threshold : float, optional
          Threshold for masking out outlier strain values. If None, no masking/filtering (default is None).
+    basis : {'g1', 'g2', 'image'}, optional
+        Reference direction for the x' axis (default is 'g1'):
+        'g1' -- along the reflection 1 wavevector, i.e. normal to the g1 lattice planes.
+        'g2' -- along the reflection 2 wavevector, i.e. normal to the g2 lattice planes.
+        'image' -- along the image +x axis (columns), so that y' is along +y (rows, down).
+    angle : float, optional
+        Rotation of the x' axis away from the `basis` reference direction, in
+        radians, measured from +x toward +y (default is 0).
 
     Returns
     -------
     exx : ndarray
-        Epsilon_xx strain component.
+        Epsilon_x'x' normal strain component.
     eyy : ndarray
-        Epsilon_yy strain component.
+        Epsilon_y'y' normal strain component.
     exy : ndarray
-        Epsilon_xy shear strain component (symmetric part).
+        Epsilon_x'y' shear strain component (symmetric part, tensor shear).
     oxy : ndarray
-        Omega_xy rotation component (antisymmetric part).
+        Omega_x'y' rotation component (antisymmetric part), independent of the frame.
+
+    Notes
+    -----
+    With basis='g1' and angle=0, exx is the relative change in the g1 lattice
+    plane spacing (equal to the longitudinal component from `phase_to_strain`
+    for reflection 1) and eyy is the strain along the g1 planes, i.e. along the
+    lattice vector a2. basis='g2' is the same with the reflections exchanged.
+    The trace exx + eyy and the rotation oxy do not depend on the frame, and the
+    result is the same for either of a pair of conjugate peaks.
     """
     shape = phase1.shape
     h, w = shape
@@ -142,6 +164,16 @@ def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
     gy1 = (p1[0] - h//2) / h
     gx2 = (p2[1] - w//2) / w
     gy2 = (p2[0] - h//2) / h
+
+    # Angle of the x' axis of the output frame
+    if basis == 'g1':
+        phi = np.arctan2(gy1, gx1) + angle
+    elif basis == 'g2':
+        phi = np.arctan2(gy2, gx2) + angle
+    elif basis == 'image':
+        phi = angle
+    else:
+        raise ValueError(f"Invalid argument: {basis!r}. Expected 'g1', 'g2', or 'image'.")
     
     # Calculate derivatives using robust complex exponential method
     # dP1/dx is derivative along axis 1 (cols)
@@ -179,6 +211,13 @@ def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
     eyy = eyy_raw
     exy = 0.5 * (exy_raw + eyx_raw) # Symmetric shear strain
     oxy = 0.5 * (exy_raw - eyx_raw) # Rotation (antisymmetric)
+
+    # Rotate strain into the output frame, eps' = R eps R^T with x' = (c, s), y' = (-s, c)
+    # oxy is unchanged by rotating the frame
+    c, s = np.cos(phi), np.sin(phi)
+    exx, eyy, exy = (c**2*exx + 2*c*s*exy + s**2*eyy,
+                     s**2*exx - 2*c*s*exy + c**2*eyy,
+                     c*s*(eyy - exx) + (c**2 - s**2)*exy)
     
     # Apply median filtering to remove outliers
     if mask_threshold is not None:
