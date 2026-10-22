@@ -27,7 +27,6 @@ def create_references(p,shape):
     ysize = shape[0]
     x = p[1]
     y = p[0]
-    # zero frequency of the fftshifted pattern is at index N//2 (for both even and odd N)
     qx=2*np.pi*(xsize//2 - x)/xsize
     qy=2*np.pi*(ysize//2 - y)/ysize
 

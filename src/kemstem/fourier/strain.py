@@ -39,7 +39,7 @@ def phase_to_strain(phase, p, mask_threshold=None):
     Uses improved complex exponential differentiation.
     """
     # Reference g vector in cycles/pixel, from the center to the peak
-    # p is (y, x), shape is (h, w); zero frequency of the fftshifted pattern is at N//2
+    # p is (y, x), shape is (h, w)
     h, w = phase.shape
     gy = (p[0] - h//2) / h
     gx = (p[1] - w//2) / w
@@ -138,7 +138,6 @@ def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
     h, w = shape
     
     # Calculate g vectors in units of 1/pixel
-    # zero frequency of the fftshifted pattern is at N//2 (for both even and odd N)
     gx1 = (p1[1] - w//2) / w
     gy1 = (p1[0] - h//2) / h
     gx2 = (p2[1] - w//2) / w

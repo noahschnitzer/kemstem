@@ -140,7 +140,8 @@ def fit_grating(grating, patch_size, step_size, guess,
     spacing : ndarray
         Fitted spacing values (pixels).
     rotation : ndarray
-        Fitted rotation angles (radians).
+        Fitted wavevector angles (radians), measured from +x toward +y
+        (clockwise as displayed).
     sampled_points : ndarray (n,2)
         Coordinates of patch centers, each tuple is a (y,x) point
     If store_full_results is True, also returns:
@@ -166,7 +167,7 @@ def fit_grating(grating, patch_size, step_size, guess,
     # to (y,x,2), where the x/y order is significant for later re-raveling, then to (n,2)
     sampled_points = np.moveaxis(np.array(np.meshgrid(Ypoints,Xpoints,indexing='ij')),[0,1,2],[2,0,1],).reshape(-1,2,) 
 
-    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
+    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]),indexing='ij')
     npatches = patches.shape[0]
     if verbose:
         print(f'# of patches: {npatches}')
@@ -220,11 +221,12 @@ def peak_to_fit_guess(pt,imshape):
     -------
     tuple
         Initial parameter guesses (amplitude, radius, theta, phase) for sinusoidal fitting.
+        theta is measured from +x toward +y (clockwise as displayed).
     """
     c = np.array(imshape)//2
-    r = np.linalg.norm(pt-c)
-    r= 2*np.pi *r / imshape[0]
-    theta = np.arctan2((pt-c)[1],(pt-c)[0])
+    fy, fx = (np.asarray(pt) - c) / np.asarray(imshape)
+    r = 2*np.pi*np.hypot(fy, fx)
+    theta = np.arctan2(fy, fx)
     return (1,r,theta,0)
 
 def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None,renormalize_patches=False):
@@ -261,7 +263,7 @@ def test_fit(grating,patch_size,step_size,guess,test_patch_idx = None,renormaliz
     patches,Ypoints,Xpoints,subsample_shape = _create_patches(grating,patch_size,step_size)
     if renormalize_patches:
         patches = _renormalize_each_patch(patches)
-    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]))
+    mesh = np.meshgrid(np.arange(patches.shape[1]),np.arange(patches.shape[2]),indexing='ij')
     npatches = patches.shape[0]
     if test_patch_idx is None:
         test_patch_idx = npatches//4

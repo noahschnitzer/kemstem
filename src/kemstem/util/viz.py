@@ -7,7 +7,6 @@ from matplotlib.collections import LineCollection,PatchCollection
 import cmocean
 from skimage.util import montage
 
-from . import general
 from .colormaps import vector_to_color
 
 def plot_numbered_points(image,points,ax=None,delta=0,delta_step=0,verbose=0,zoom=100,vmin=None,vmax=None,color='r', fontsize=8):
@@ -428,7 +427,7 @@ def coarsening_marker(axis,coarsening_radius,position_frac=(0.95,.95),facecolor=
     return coarsening_marker
 
 
-def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_inner=0.3,r_outer=0.8,s=1e0):
+def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_inner=0.3,r_outer=0.8,s=1e0,angleshift=0):
     """
     Plots a color wheel for the provided colormap or vector coloring method.
 
@@ -452,6 +451,15 @@ def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_in
         Outer radius of color wheel. Default 0.8
     s : float, optional
         Size of markers comprising wheel. Default 1.
+    angleshift : float, optional
+        Angle shift (radians) applied to the colors, matching the angleshift
+        argument of plot_displaced_site. Default 0.
+
+    Notes
+    -----
+    The wheel is drawn with the y axis pointing down, as for images, so that
+    the color at each direction on the wheel matches the color of a
+    displacement in that direction plotted with plot_displaced_site on an image.
 
     """ 
     YY,XX = np.meshgrid(np.linspace(-1,1,n_points),np.linspace(-1,1,n_points))
@@ -480,7 +488,7 @@ def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_in
             # Actually, `vector_to_color` takes magnitudes and normalizing factor.
             # Let's use max_mag=r_outer so that the outer edge is "full saturation/magnitude".
             magnitudes = r[r_filter]
-            angles = theta[r_filter]
+            angles = theta[r_filter] + angleshift
             
             c = vector_to_color(angles, magnitudes, method=method, center=center, max_mag=r_outer)
             
@@ -494,12 +502,13 @@ def plot_color_wheel(cm,filename=None,dpi=150,transparent=True,n_points=256,r_in
 
     if not is_vector_color:
         # Standard matplotlib colormap behavior
-        c = cm(general.normalize(theta[r_filter]))
+        c = cm(((theta[r_filter] + angleshift) % (2*np.pi)) / (2*np.pi))
 
     fig,ax = plt.subplots(1,1,constrained_layout=True,figsize=(3,3))
     #ax.matshow(r)
     ax.scatter(XX[r_filter],YY[r_filter],s=s,c=c)
     ax.axis('equal')
+    ax.invert_yaxis()
     ax.axis('off')
     if filename is not None:
         fig.savefig(filename, transparent=transparent,dpi=dpi)
