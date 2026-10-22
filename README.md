@@ -4,7 +4,7 @@
 - Mapping the amplitude and phase of periodic features to identify local orderings, defects, strains, and other nanoscale inhomogeneity with Fourier filtering and phase-lock in analysis. See: [`B.H. Goodge, I. El Baggari, S.S. Hong, Z. Wang, D.G. Schlom, H.Y. Hwang & L. F. Kourkoutis (2022). Microscopy and Microanalysis, 28(2), 404-411.`](https://doi.org/10.1017/S1431927622000125)
 - Measuring inter-planar spacings and orientations with high real-space resolution and precision, as well as quantified uncertainty, with local wave fitting. See: [`M. A. Smeaton, I. El Baggari, D. M. Balazs, T. Hanrath & L. F. Kourkoutis (2021). ACS nano, 15(1), 719-726.`](https://doi.org/10.1021/acsnano.0c06990)
 
-Detailed descriptions, example applications and validation of these techniques are provided in our preprint: [`N. Schnitzer, L. Bhatt, I. El Baggari, R. Hovden, B.H. Savitzky, M.A. Smeaton, B.H. Goodge (2025). arXiv:2504.01159.`](https://arxiv.org/abs/2504.01159) 
+Detailed descriptions, example applications and validation of these techniques are provided in our manuscript: [`N. Schnitzer, L. Bhatt, I. El Baggari, R. Hovden, B.H. Savitzky, M.A. Smeaton, B.H. Goodge (2025). Physical Review Materials, 9, 093802`](https://doi.org/10.1103/xdf6-31xf), also available at [`arXiv:2504.01159.`](https://arxiv.org/abs/2504.01159) 
 
 ## Installation
 ``kemstem`` releases can be installed from PyPI with pip:
