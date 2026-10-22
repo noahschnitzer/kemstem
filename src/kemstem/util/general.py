@@ -147,7 +147,7 @@ def gaussian_fit_peaks(image, peaks0, window_dimension=5, remove_unfit = True, v
     data_fits = np.zeros((window_dimension,window_dimension,n_sites,2))
     
     YY,XX = np.meshgrid(np.arange(-winrad,winrad+1),np.arange(-winrad,winrad+1),indexing='ij')
-    for it in tqdm(range(n_sites)):
+    for it in tqdm(range(n_sites),disable = not verbose):
         x0_i = int(x0[it])
         y0_i = int(y0[it])
         

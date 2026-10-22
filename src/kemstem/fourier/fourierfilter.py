@@ -111,7 +111,7 @@ def mask_peaks_circle(pattern_c,p,levels,radius):
     print('mask_peaks_circle is renamed, use damp_peaks_circle')
     return damp_peaks_circle(pattern_c,p,levels,radius)
 
-def damp_peaks_circle(pattern_c,p,levels,radius):
+def damp_peaks_circle(pattern_c,p,levels,radius,verbose=True):
     """
     Damp peaks in a complex array by setting a circular area around each to a specified amplitude.
     
@@ -136,7 +136,7 @@ def damp_peaks_circle(pattern_c,p,levels,radius):
     
     damped_pattern_c = pattern_c.copy()
     YY,XX = np.meshgrid(np.arange(pattern_c.shape[0]),np.arange(pattern_c.shape[1]),indexing='ij')
-    for it,pt in tqdm(enumerate(p)):
+    for it,pt in enumerate(tqdm(p,disable=not verbose)):
         circle_mask = ((XX-pt[1])**2 + (YY-pt[0])**2 )< radius**2
         damped_pattern_c[circle_mask] = damp_complex_amplitude(damped_pattern_c[circle_mask], levels[it])
     damped_image = np.real(np.fft.ifft2(np.fft.ifftshift(damped_pattern_c)))
