@@ -7,7 +7,7 @@ def phase_to_strain(phase, p, mask_threshold=None):
     Calculate longitudinal and transverse strain components from spatially varying phase.
     
     Projections of the gradient of the phase along and transverse to a reference
-    wavevector are assigned as the longitudinal and transverse components.
+    wavevector g are assigned as the longitudinal and transverse components.
 
     Parameters
     ----------
@@ -21,22 +21,28 @@ def phase_to_strain(phase, p, mask_threshold=None):
     Returns
     -------
     eps_longitudinal : ndarray
-        longitudinal/parallel component of the strain
+        Normal strain along g (du_g/dg), i.e. the relative change in lattice
+        plane spacing.
     eps_transverse : ndarray
-        transvserse / orthogonal component of the strain
+        Gradient of the displacement along g, taken transverse to g (du_g/dt).
+        To first order this is the local rotation of the g lattice planes in
+        radians; positive is clockwise as displayed (y down). It combines shear
+        and rotation (eps_gt + omega) and is not the normal strain
+        perpendicular to g, which cannot be measured from a single reflection.
 
     Notes
     -----
-    This function calculates compression and shear strain components from
-    a real valued phase. Uses improved complex exponential differentiation.
+    A single reflection only measures the displacement component along g, u_g.
+    The transverse direction t is g rotated 90 degrees counterclockwise as
+    displayed, t = (gy, -gx) in (x, y) components. Separating shear from
+    rotation requires a second reflection, see `calculate_strain_tensor`.
+    Uses improved complex exponential differentiation.
     """
-    # Calculate qref from p
-    # qref is the vector from the center to the peak
-    # p is (y, x), shape is (h, w)
-    qref = np.array(p) - np.array(phase.shape)/2.0
-    
-    qx = qref[1]
-    qy = qref[0]
+    # Reference g vector in cycles/pixel, from the center to the peak
+    # p is (y, x), shape is (h, w); zero frequency of the fftshifted pattern is at N//2
+    h, w = phase.shape
+    gy = (p[0] - h//2) / h
+    gx = (p[1] - w//2) / w
 
     # Use robust gradient calculation
     # grad_phi[0] is y-derivative, grad_phi[1] is x-derivative
@@ -44,8 +50,8 @@ def phase_to_strain(phase, p, mask_threshold=None):
     grad_phi_x = _calculate_phase_gradient_complex(phase, 1)
 
     # Normalized such that a shift of 2pi over 1 wavelength gives eps=1
-    eps_longitudinal = -(grad_phi_y*qy + grad_phi_x*qx)/(qx**2+qy**2)*phase.shape[0]/(2*np.pi)
-    eps_transverse = -(0.5)*(-grad_phi_y*qx + grad_phi_x*qy)/(qx**2+qy**2)*phase.shape[0]/(2*np.pi)
+    eps_longitudinal = -(grad_phi_y*gy + grad_phi_x*gx)/(gx**2+gy**2)/(2*np.pi)
+    eps_transverse = -(-grad_phi_y*gx + grad_phi_x*gy)/(gx**2+gy**2)/(2*np.pi)
 
     if mask_threshold is not None:
         mask = np.abs(eps_transverse)>mask_threshold
@@ -131,11 +137,12 @@ def calculate_strain_tensor(phase1, phase2, p1, p2, mask_threshold=None):
     shape = phase1.shape
     h, w = shape
     
-    # Calculate g vectors in units of 1/pixel    
-    gx1 = (p1[1] - w/2) / w
-    gy1 = (p1[0] - h/2) / h
-    gx2 = (p2[1] - w/2) / w
-    gy2 = (p2[0] - h/2) / h
+    # Calculate g vectors in units of 1/pixel
+    # zero frequency of the fftshifted pattern is at N//2 (for both even and odd N)
+    gx1 = (p1[1] - w//2) / w
+    gy1 = (p1[0] - h//2) / h
+    gx2 = (p2[1] - w//2) / w
+    gy2 = (p2[0] - h//2) / h
     
     # Calculate derivatives using robust complex exponential method
     # dP1/dx is derivative along axis 1 (cols)

@@ -27,8 +27,9 @@ def create_references(p,shape):
     ysize = shape[0]
     x = p[1]
     y = p[0]
-    qx=2*np.pi*(xsize/2.- x)/xsize
-    qy=2*np.pi*(ysize/2.- y)/ysize
+    # zero frequency of the fftshifted pattern is at index N//2 (for both even and odd N)
+    qx=2*np.pi*(xsize//2 - x)/xsize
+    qy=2*np.pi*(ysize//2 - y)/ysize
 
     YY,XX = np.meshgrid(np.arange(ysize),np.arange(xsize),indexing='ij')
     cosRef = np.cos(qx*XX+qy*YY)
@@ -67,7 +68,7 @@ def phaselock(filtered_im_c,p,sigma):
     fftoutB=np.fft.fftshift(np.fft.fft2((outB)))
 
     #Low-pass filter the product images
-    low_pass=fourierfilter.create_gaussian_filter(filtered_im_c.shape,(filtered_im_c.shape[0]/2,filtered_im_c.shape[1]/2),sigma)
+    low_pass=fourierfilter.create_gaussian_filter(filtered_im_c.shape,(filtered_im_c.shape[0]//2,filtered_im_c.shape[1]//2),sigma)
     ifftA=np.real(np.fft.ifft2(np.fft.ifftshift(fftoutA*low_pass)))#get_ifft(fftoutA*low_pass)
     ifftB=np.real(np.fft.ifft2(np.fft.ifftshift(fftoutB*low_pass)))#get_ifft(fftoutB*low_pass)
 
