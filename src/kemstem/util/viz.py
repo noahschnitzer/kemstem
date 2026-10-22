@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.colors import LinearSegmentedColormap, Normalize, is_color_like, to_rgba
 from matplotlib.patches import Polygon, Circle
 from matplotlib.collections import LineCollection,PatchCollection
 
@@ -290,8 +290,14 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
         Array of displacement vectors as (dy, dx).
     scale : float
         Scaling factor for displacements.
-    colors : str or ndarray, optional
-        Coloring method ('angle', 'mag') or array of color values (default is 'angle').
+    colors : str, tuple, or ndarray, optional
+        How the triangles are colored (default is 'angle'):
+        'angle' -- displacement direction, mapped through cmap.
+        'mag' -- displacement magnitude, mapped through cmap.
+        'vector' -- direction and magnitude, see util.colormaps.vector_to_color.
+        Any other matplotlib color string (e.g. 'red', 'C0', '#ff8800') or an
+        RGB/RGBA tuple or list -- a single facecolor applied to every site.
+        ndarray, shape (n,) -- one value per site, mapped through cmap.
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, a new figure is created.
     cmap : str, optional
@@ -372,17 +378,23 @@ def plot_displaced_site(columns,displacements,scale,colors='angle',ax=None,cmap=
 
         facecolors = vector_to_color(angles + angleshift, mags, method=method, center=center, max_mag=max_mag)
 
-    elif type(colors) is np.ndarray and colors.shape[0] == columns.shape[0]:
+    elif isinstance(colors, (str, tuple, list)) and is_color_like(colors):
+        facecolors = to_rgba(colors)
+
+    elif type(colors) is np.ndarray:
+        if colors.shape != (columns.shape[0],):
+            raise ValueError(f"colors array has shape {colors.shape}, expected ({columns.shape[0]},), one value per site.")
         ucolors = colors[mask_sites]
         #p.set_array(ucolors)
         varray = ucolors
         vnorm = Normalize(vmin=None,vmax=None,clip=False)
 
     else:
-        print('No usable colors')
+        raise ValueError(f"Invalid argument: colors={colors!r}. Expected 'angle', 'mag', 'vector', "
+                         "a matplotlib color, or an array of one value per site.")
     
     if facecolors is not None:
-         p = PatchCollection(patches, facecolors=facecolors, alpha=1)
+         p = PatchCollection(patches, facecolors=facecolors)
     else:
          p = PatchCollection(patches, cmap=cmap, alpha=1, norm=vnorm)
          p.set_array(varray)
